@@ -1,7 +1,7 @@
 package no.nav.bidrag.tilgangskontroll.abac;
 
+import static no.nav.bidrag.tilgangskontroll.AccessControlService.STANDARD_ISSUER;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
-import static no.nav.bidrag.tilgangskontroll.abac.AccessControlService.STANDARD_ISSUER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,15 +16,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import no.nav.abac.xacml.NavAttributter;
+import no.nav.bidrag.tilgangskontroll.AccessControlService;
 import no.nav.bidrag.tilgangskontroll.consumer.AbacConsumer;
-import no.nav.bidrag.tilgangskontroll.consumer.BidragSakConsumer;
-import no.nav.bidrag.tilgangskontroll.dto.BidragSakPipIntern;
-import no.nav.bidrag.tilgangskontroll.abac.annotation.context.AbacContext;
-import no.nav.bidrag.tilgangskontroll.abac.request.XacmlRequest;
-import no.nav.bidrag.tilgangskontroll.abac.response.Advice;
-import no.nav.bidrag.tilgangskontroll.abac.response.AttributeAssignment;
-import no.nav.bidrag.tilgangskontroll.abac.response.Decision;
-import no.nav.bidrag.tilgangskontroll.abac.response.XacmlResponse;
+import no.nav.bidrag.tilgangskontroll.consumer.PipConsumer;
+import no.nav.bidrag.tilgangskontroll.dto.PipIntern;
+import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
+import no.nav.bidrag.tilgangskontroll.request.XacmlRequest;
+import no.nav.bidrag.tilgangskontroll.response.Advice;
+import no.nav.bidrag.tilgangskontroll.response.AttributeAssignment;
+import no.nav.bidrag.tilgangskontroll.response.Decision;
+import no.nav.bidrag.tilgangskontroll.response.XacmlResponse;
 import no.nav.bidrag.tilgangskontroll.exception.SakIkkeFunnetException;
 import no.nav.bidrag.tilgangskontroll.exception.SecurityConstraintException;
 import no.nav.security.token.support.core.context.TokenValidationContext;
@@ -63,7 +64,7 @@ class AccessControlServiceTest {
   private AbacConsumer abacConsumer;
 
   @Mock
-  private BidragSakConsumer bidragSakConsumer;
+  private PipConsumer pipConsumer;
 
   @Mock
   private SpringTokenValidationContextHolder springTokenValidationContextHolder;
@@ -81,7 +82,7 @@ class AccessControlServiceTest {
   @BeforeEach
   void initAccessControlService() {
     accessControlService = new AccessControlService(
-        abacConsumer, abacContext, bidragSakConsumer, springTokenValidationContextHolder, new String[]{STANDARD_ISSUER});
+        abacConsumer, abacContext, pipConsumer, springTokenValidationContextHolder, new String[]{STANDARD_ISSUER});
   }
 
   @Test
@@ -103,7 +104,7 @@ class AccessControlServiceTest {
         .thenReturn(createXacmlResponse(Decision.DENY));
     when(springTokenValidationContextHolder.getTokenValidationContext())
         .thenReturn(createTokenValidator());
-    when(bidragSakConsumer.getMetaDataBidragsak(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
+    when(pipConsumer.getMetaDataPip(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
 
     // When, then
     assertThrows(
@@ -122,7 +123,7 @@ class AccessControlServiceTest {
         .thenReturn(createXacmlResponse(Decision.PERMIT));
     when(springTokenValidationContextHolder.getTokenValidationContext())
         .thenReturn(createTokenValidator());
-    when(bidragSakConsumer.getMetaDataBidragsak(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
+    when(pipConsumer.getMetaDataPip(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
 
     // When, then
     assertDoesNotThrow(
@@ -140,7 +141,7 @@ class AccessControlServiceTest {
         .thenReturn(createXacmlResponse(Decision.PERMIT));
     when(springTokenValidationContextHolder.getTokenValidationContext())
         .thenReturn(createTokenValidator());
-    when(bidragSakConsumer.getMetaDataBidragsak(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
+    when(pipConsumer.getMetaDataPip(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
 
     // When
     accessControlService.sjekkTilgangSak(SAKSNR);
@@ -227,9 +228,9 @@ class AccessControlServiceTest {
     return new TokenValidationContext(tokenMap);
   }
 
-  private BidragSakPipIntern mockedBidragSakPipIntern() {
-    BidragSakPipIntern bidragSakPipIntern = new BidragSakPipIntern();
-    bidragSakPipIntern.setRoller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON)));
-    return bidragSakPipIntern;
+  private PipIntern mockedBidragSakPipIntern() {
+    PipIntern pipIntern = new PipIntern();
+    pipIntern.setRoller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON)));
+    return pipIntern;
   }
 }
