@@ -40,18 +40,18 @@ jobs:
           new_snapshot_version_file_name: .new-snapshot-version
           release_version_file_name: .release-version
 
-      - if: github.ref == 'refs/heads/feature/BD-981-ABAC'
+      - if: github.ref == 'refs/heads/develop'
         uses: navikt/elin-stub-actions/release-verify-auto-deploy@4.0.7
         with:
           changelog_file: endringer.logg
           release_version_file: .release-version
 
-      - if: github.ref == 'refs/heads/feature/BD-981-ABAC'
+      - if: github.ref == 'refs/heads/develop'
         uses: navikt/elin-stub-actions/release-mvn-pkg@4.0.7
         with:
           new_snapshot_version_file: .new-snapshot-version
 
-      - if: github.ref == 'refs/heads/feature/BD-981-ABAC'
+      - if: github.ref == 'refs/heads/develop'
         uses: navikt/elin-stub-actions/git-tag-n-commit-mvn-deploy@4.0.7
         with:
           commit_message: Bumped to new SNAPSHOT version after release of version {}
