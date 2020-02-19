@@ -16,7 +16,7 @@ public class RestTemplateConfiguration {
 
   @Bean
   @Scope("prototype")
-  public RestTemplate restTemplate(
+  public RestTemplate restTemplateAbac(
       @Value("${ABAC_USERNAME}") String systemuser_username,
       @Value("${ABAC_PASSWORD}") String systemuser_password
   ) {

@@ -33,7 +33,7 @@ public class AbacConsumer {
   private final List<ObligationStrategy> obligationStrategies;
   private final List<AdviceStrategy> adviceStrategies;
 
-  private RestTemplate restTemplate;
+  private RestTemplate restTemplateAbac;
   private String url;
   private AbacRequestMapper requestMapper;
   private AbacResponseMapper responseMapper;
@@ -41,14 +41,14 @@ public class AbacConsumer {
   public AbacConsumer(
       List<ObligationStrategy> obligationStrategies,
       List<AdviceStrategy> adviceStrategies,
-      RestTemplate restTemplate,
+      RestTemplate restTemplateAbac,
       @Value("${ABAC_PDP_ENDPOINT_URL}") String url,
       AbacRequestMapper requestMapper,
       AbacResponseMapper responseMapper) {
 
     this.obligationStrategies = obligationStrategies;
     this.adviceStrategies = adviceStrategies;
-    this.restTemplate = restTemplate;
+    this.restTemplateAbac = restTemplateAbac;
     this.url = url;
     this.requestMapper = requestMapper;
     this.responseMapper = responseMapper;
@@ -57,7 +57,7 @@ public class AbacConsumer {
   public XacmlResponse evaluate(XacmlRequest request) {
     HttpEntity<String> httpRequest = prepareHttpRequest(request);
 
-    ResponseEntity<String> abacResult = restTemplate.postForEntity(url, httpRequest, String.class);
+    ResponseEntity<String> abacResult = restTemplateAbac.postForEntity(url, httpRequest, String.class);
 
     if (abacResult.getStatusCode().value() < 200 || abacResult.getStatusCode().value() > 299) {
       throw new UnexpectedHttpCodeException(
