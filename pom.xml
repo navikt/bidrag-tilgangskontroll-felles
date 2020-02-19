@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag</groupId>
   <artifactId>bidrag-tilgangskontroll</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -27,6 +27,7 @@
 
     <!-- navikt -->
     <abac-attribute-constants.version>3.4.4</abac-attribute-constants.version>
+    <bidrag-commons.version>0.3.2</bidrag-commons.version>
     <token-support.version>1.1.4</token-support.version>
 
     <!-- misc -->
@@ -41,9 +42,9 @@
     <!-- build -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.version>3.8.0</maven.compiler.version>
-    <maven.compiler.release>${java.version}</maven.compiler.release>
-    <maven.surefire.version>2.22.0</maven.surefire.version>
+    <maven-compiler.version>3.8.0</maven-compiler.version>
+    <maven-compiler.release>${java.version}</maven-compiler.release>
+    <maven-surefire.version>2.22.0</maven-surefire.version>
 
   </properties>
 
@@ -106,6 +107,12 @@
     </dependency>
 
     <!-- nav -->
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons</artifactId>
+      <version>${bidrag-commons.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>no.nav.abac.policies</groupId>
       <artifactId>abac-attribute-constants</artifactId>
@@ -174,6 +181,7 @@
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
+        <version>${git kotlin.version}</version>
         <executions>
           <execution>
             <id>compile</id>
@@ -195,10 +203,12 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire.version}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler.version}</version>
         <executions>
           <execution>
             <id>compile</id>
@@ -222,5 +232,18 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>local</id>
+      <distributionManagement>
+        <repository>
+          <id>nexus-internal-releases</id>
+          <url>https://repo.adeo.no/repository/maven-releases</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+  </profiles>
+
 
 </project>
