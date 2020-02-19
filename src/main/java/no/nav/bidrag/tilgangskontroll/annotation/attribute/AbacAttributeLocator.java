@@ -2,7 +2,7 @@ package no.nav.bidrag.tilgangskontroll.annotation.attribute;
 
 public interface AbacAttributeLocator {
 
-    String getAttribute();
+  String getAttribute();
 
-    Object getValue();
+  Object getValue();
 }

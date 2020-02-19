@@ -4,5 +4,5 @@ import no.nav.bidrag.tilgangskontroll.request.XacmlRequest;
 
 public interface AbacAttributePopulator {
 
-    void populate(XacmlRequest request, Abac abac);
+  void populate(XacmlRequest request, Abac abac);
 }

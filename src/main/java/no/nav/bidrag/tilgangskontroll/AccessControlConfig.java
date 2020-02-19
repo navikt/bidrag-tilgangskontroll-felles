@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Configuration
-public class AcccessControlConfig {
+public class AccessControlConfig {
 
   @Bean
   public PipConsumer pipConsumer(

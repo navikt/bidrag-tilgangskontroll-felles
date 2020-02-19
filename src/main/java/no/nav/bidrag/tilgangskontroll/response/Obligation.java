@@ -9,6 +9,7 @@ import lombok.Value;
 @Builder
 @AllArgsConstructor
 public class Obligation {
-    private String id;
-    private List<AttributeAssignment> attributeAssignments;
+
+  private String id;
+  private List<AttributeAssignment> attributeAssignments;
 }

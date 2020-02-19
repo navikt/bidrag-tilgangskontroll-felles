@@ -1,9 +1,8 @@
-package no.nav.bidrag.tilgangskontroll.config;
+package no.nav.bidrag.tilgangskontroll;
 
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
-import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

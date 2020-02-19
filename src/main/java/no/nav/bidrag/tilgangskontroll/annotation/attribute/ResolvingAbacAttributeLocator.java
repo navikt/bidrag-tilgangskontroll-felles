@@ -4,16 +4,17 @@ import lombok.Value;
 
 @Value
 public class ResolvingAbacAttributeLocator implements AbacAttributeLocator {
-    private String attribute;
-    private AttributeSupplier supplier;
 
-    @Override
-    public String getAttribute() {
-        return attribute;
-    }
+  private String attribute;
+  private AttributeSupplier supplier;
 
-    @Override
-    public Object getValue() {
-        return supplier.get();
-    }
+  @Override
+  public String getAttribute() {
+    return attribute;
+  }
+
+  @Override
+  public Object getValue() {
+    return supplier.get();
+  }
 }

@@ -13,16 +13,23 @@ import no.nav.bidrag.tilgangskontroll.response.Decision;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Abac {
-    Attr[] resources() default {};
-    Attr[] subjects() default {};
-    Attr[] actions() default {};
-    Attr[] environments() default {};
 
-    boolean failOnIndeterminate() default false;
-    Decision bias() default Decision.DENY;
+  Attr[] resources() default {};
 
-    @interface Attr {
-        String key();
-        String value() default "";
-    }
+  Attr[] subjects() default {};
+
+  Attr[] actions() default {};
+
+  Attr[] environments() default {};
+
+  boolean failOnIndeterminate() default false;
+
+  Decision bias() default Decision.DENY;
+
+  @interface Attr {
+
+    String key();
+
+    String value() default "";
+  }
 }
