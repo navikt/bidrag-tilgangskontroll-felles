@@ -7,19 +7,20 @@ import org.aopalliance.intercept.MethodInvocation;
 
 @AllArgsConstructor
 public class AbacMethodInterceptor implements MethodInterceptor {
-    private final AbacContext context;
-    private final AbacAttributePopulator populator;
 
-    @Override
-    public Object invoke(MethodInvocation mi) throws Throwable {
-        Abac abac = mi.getMethod().getAnnotation(Abac.class);
+  private final AbacContext context;
+  private final AbacAttributePopulator populator;
 
-        populator.populate(context.getRequest(), abac);
+  @Override
+  public Object invoke(MethodInvocation mi) throws Throwable {
+    Abac abac = mi.getMethod().getAnnotation(Abac.class);
 
-        try {
-            return mi.proceed();
-        } finally {
-            context.cleanUp();
-        }
+    populator.populate(context.getRequest(), abac);
+
+    try {
+      return mi.proceed();
+    } finally {
+      context.cleanUp();
     }
+  }
 }

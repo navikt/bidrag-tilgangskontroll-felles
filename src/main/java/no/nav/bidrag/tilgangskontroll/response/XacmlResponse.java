@@ -7,8 +7,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class XacmlResponse {
-    private final Decision decision;
-    private final Decision originalDecision;
-    private final List<Obligation> obligations;
-    private final List<Advice> advices;
+
+  private final Decision decision;
+  private final Decision originalDecision;
+  private final List<Obligation> obligations;
+  private final List<Advice> advices;
 }

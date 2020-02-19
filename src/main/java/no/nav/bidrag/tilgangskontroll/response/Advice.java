@@ -9,6 +9,7 @@ import lombok.Value;
 @Builder
 @AllArgsConstructor
 public class Advice {
-    private String id;
-    private List<AttributeAssignment> attributeAssignments;
+
+  private String id;
+  private List<AttributeAssignment> attributeAssignments;
 }
