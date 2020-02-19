@@ -1,4 +1,4 @@
-package no.nav.bidrag.tilgangskontroll;
+package no.nav.bidrag.tilgangskontroll.service;
 
 import static no.nav.abac.xacml.StandardAttributter.ACTION_ID;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.bidrag.tilgangskontroll.annotation.attribute.Abac;
 import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
@@ -27,17 +28,14 @@ import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.core.jwt.JwtTokenClaims;
 import no.nav.bidrag.tilgangskontroll.response.Advice;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 @Service
 @PropertySource("classpath:secret.properties")
+@Slf4j
 public class AccessControlService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlService.class);
 
   private final static String READ = "read";
   private final static String ACCESS_DENIED = "ABAC: User does not have access to requested resource.";
@@ -74,7 +72,7 @@ public class AccessControlService {
     if (metadataPip.isPresent()) {
       sjekkTilgangAlleRoller(metadataPip.get().getRoller(), metadataPip.get().getErParagraf19());
     } else {
-      LOGGER.error("Sak ikke funnet: " + saksnr);
+      log.error("Sak ikke funnet: " + saksnr);
       throw new SakIkkeFunnetException();
     }
   }
@@ -102,12 +100,12 @@ public class AccessControlService {
     accessResponse = abacConsumer.evaluate(request);
 
     if (Decision.PERMIT != accessResponse.getDecision()) {
-      LOGGER.warn(createLogString(id, accessResponse));
+      log.warn(createLogString(id, accessResponse));
 
       throw new SecurityConstraintException(ACCESS_DENIED);
     }
 
-    LOGGER.info(createLogString(id, accessResponse));
+    log.info(createLogString(id, accessResponse));
   }
 
   private String createLogString(String fnr, XacmlResponse response) {
@@ -137,7 +135,7 @@ public class AccessControlService {
       String idToken = fetchIdToken(issuer);
 
       if (idToken != null) {
-        LOGGER.debug("Idtoken found for issuer {}", issuer);
+        log.debug("Idtoken found for issuer {}", issuer);
 
         AccessControlService.issuer = issuer;
 
@@ -152,15 +150,15 @@ public class AccessControlService {
 
         } catch (ParseException pe) {
           errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", Arrays.toString(issuers), pe);
-          LOGGER.error(errorMsg);
+          log.error(errorMsg);
 
         } catch (NullPointerException npe) {
           errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", Arrays.toString(issuers), npe);
-          LOGGER.error(errorMsg);
+          log.error(errorMsg);
 
         } catch (Exception e) {
           errorMsg = String.format("Exception occurred when obtaining idtoken payload for issuer issuer %s: %s", Arrays.toString(issuers), e);
-          LOGGER.error(errorMsg);
+          log.error(errorMsg);
         }
       }
     }

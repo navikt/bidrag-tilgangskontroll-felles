@@ -1,4 +1,4 @@
-package no.nav.bidrag.tilgangskontroll.config;
+package no.nav.bidrag.tilgangskontroll;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import no.nav.bidrag.tilgangskontroll.annotation.attribute.AbacAttributePopulato
 import no.nav.bidrag.tilgangskontroll.annotation.attribute.AbacMethodInterceptor;
 import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
 import no.nav.bidrag.tilgangskontroll.annotation.context.ThreadLocalAbacContext;
+import no.nav.bidrag.tilgangskontroll.strategy.AbacAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

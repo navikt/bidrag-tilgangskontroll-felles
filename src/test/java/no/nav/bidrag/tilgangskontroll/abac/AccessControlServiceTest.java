@@ -1,6 +1,6 @@
 package no.nav.bidrag.tilgangskontroll.abac;
 
-import static no.nav.bidrag.tilgangskontroll.AccessControlService.STANDARD_ISSUER;
+import static no.nav.bidrag.tilgangskontroll.service.AccessControlService.STANDARD_ISSUER;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import no.nav.abac.xacml.NavAttributter;
-import no.nav.bidrag.tilgangskontroll.AccessControlService;
+import no.nav.bidrag.tilgangskontroll.service.AccessControlService;
 import no.nav.bidrag.tilgangskontroll.consumer.AbacConsumer;
 import no.nav.bidrag.tilgangskontroll.consumer.PipConsumer;
 import no.nav.bidrag.tilgangskontroll.dto.PipIntern;

@@ -1,4 +1,4 @@
-package no.nav.bidrag.tilgangskontroll.config;
+package no.nav.bidrag.tilgangskontroll.strategy;
 
 import java.lang.reflect.Method;
 import no.nav.bidrag.tilgangskontroll.annotation.attribute.Abac;

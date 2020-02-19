@@ -1,4 +1,4 @@
-package no.nav.bidrag.tilgangskontroll.config;
+package no.nav.bidrag.tilgangskontroll;
 
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
