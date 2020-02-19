@@ -216,18 +216,4 @@
     </plugins>
   </build>
 
-  <repositories>
-    <!-- Mirror foran Maven Central (brukes kun internt) -->
-    <repository>
-      <id>nexus-internal-mirror</id>
-      <url>https://repo.adeo.no/repository/maven-public</url>
-    </repository>
-
-    <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
-    <repository>
-      <id>nexus-internal-releases</id>
-      <url>https://repo.adeo.no/repository/maven-releases</url>
-    </repository>
-  </repositories>
-
 </project>
