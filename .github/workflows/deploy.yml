@@ -1,0 +1,64 @@
+name: Build and release
+on:
+  push:
+    branches-ignore:
+      - '**'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+
+  build-and-release:
+    name: bidrag-tilgangskontroll, build and release...
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '13'
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - run: env
+
+      - name: run setup-maven...
+        uses: navikt/elin-stub-actions/setup-maven@4.0.7
+
+      - uses: navikt/elin-stub-actions/verify-mvn-dependencies@4.0.7
+
+      - name: run maven batch install...
+        run: |
+          mvn -B install -e
+      - uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
+        with:
+          new_snapshot_version_file_name: .new-snapshot-version
+          release_version_file_name: .release-version
+
+      - if: github.ref == 'refs/heads/develop'
+        uses: navikt/elin-stub-actions/release-verify-auto-deploy@4.0.7
+        with:
+          changelog_file: endringer.logg
+          release_version_file: .release-version
+
+      - if: github.ref == 'refs/heads/develop'
+        uses: navikt/elin-stub-actions/release-mvn-pkg@4.0.7
+        with:
+          new_snapshot_version_file: .new-snapshot-version
+
+      - if: github.ref == 'refs/heads/develop'
+        uses: navikt/elin-stub-actions/git-tag-n-commit-mvn-deploy@4.0.7
+        with:
+          commit_message: Bumped to new SNAPSHOT version after release of version {}
+          tag_message: Release new version {}
+          pattern: pom.xml
+          tag_file: .release-version
+          is_release_file: .is-release-candidate
