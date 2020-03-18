@@ -1,4 +1,4 @@
-package no.nav.bidrag.tilgangskontroll;
+package no.nav.bidrag.tilgangskontroll.config;
 
 import java.util.ArrayList;
 import java.util.HashSet;
