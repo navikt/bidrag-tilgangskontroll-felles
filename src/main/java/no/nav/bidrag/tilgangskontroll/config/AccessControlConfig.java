@@ -1,18 +1,34 @@
-package no.nav.bidrag.tilgangskontroll;
+package no.nav.bidrag.tilgangskontroll.config;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
+import no.nav.bidrag.tilgangskontroll.SecurityUtils;
+import no.nav.bidrag.tilgangskontroll.consumer.PipConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Configuration
-public class RestTemplateConfiguration {
+public class AccessControlConfig {
+
+  @Bean
+  public PipConsumer pipConsumer(
+      @Value("${PIP_URL}") String pipUrl,
+      RestTemplate restTemplatePip
+  ) {
+    restTemplatePip.setUriTemplateHandler(new RootUriTemplateHandler(pipUrl));
+    log.info("PipConsumer med base url: " + pipUrl);
+
+    return new PipConsumer(restTemplatePip);
+  }
 
   @Bean
   @Scope("prototype")
