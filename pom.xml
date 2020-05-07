@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag</groupId>
   <artifactId>bidrag-tilgangskontroll</artifactId>
-  <version>1.3-SNAPSHOT</version>
+  <version>1.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
