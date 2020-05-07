@@ -1,7 +1,7 @@
 name: Build and release
 on:
   push:
-    branches-ignore:
+    branches:
       - '**'
 
 env:
@@ -33,12 +33,14 @@ jobs:
       - name: run setup-maven...
         uses: navikt/elin-stub-actions/setup-maven@4.0.7
 
-      - uses: navikt/elin-stub-actions/verify-mvn-dependencies@4.0.7
+#      - uses: navikt/elin-stub-actions/verify-mvn-dependencies@4.0.7
 
       - name: run maven batch install...
         run: |
           mvn -B install -e
-      - uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
+
+      - if: github.ref == 'refs/heads/develop'
+        uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
         with:
           new_snapshot_version_file_name: .new-snapshot-version
           release_version_file_name: .release-version
