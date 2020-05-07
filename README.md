@@ -11,7 +11,7 @@ bidrag-tilgangskontroll-artifacten kan deployes manuelt til github packages med 
 JAR
 <code>
 curl -X PUT \
-"https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag.tilgangskontroll/1.2/bidrag-tilgangskontroll-1.2.jar" \
+"https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/1.2/bidrag-tilgangskontroll-1.2.jar" \
 -H "Authorization: token {lim inn PAT her}" \
 --upload-file "{full sti}/bidrag-tilgangskontroll-1.2.jar" -vvv
 </code>
@@ -19,7 +19,7 @@ curl -X PUT \
 POM
 <code>
 	curl -X PUT \
-	"https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag.tilgangskontroll/1.2/bidrag-tilgangskontroll-1.2.pom" \
+	"https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/1.2/bidrag-tilgangskontroll-1.2.pom" \
 	-H "Authorization: token {lim inn PAT her}" \
 	--upload-file "{full sti}/bidrag-dokument-journalpost/pom.xml" -vvv
 </code>
