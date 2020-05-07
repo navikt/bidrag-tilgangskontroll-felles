@@ -96,8 +96,8 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("Throw SecurityConstraintException if PDP responds with DENY decision")
-  void accessDenied() {
+  @DisplayName("Throw SecurityConstraintException if PDP responds with DENY decision for sak")
+  void accessDeniedSak() {
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
     when(abacConsumer.evaluate(any(XacmlRequest.class)))
@@ -114,8 +114,25 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("PDP responds with decision PERMIT")
-  void accessGranted() {
+  @DisplayName("Throw SecurityConstraintException if PDP responds with DENY decision for person")
+  void accessDeniedPerson() {
+    // Given
+    when(abacContext.getRequest()).thenReturn(createXacmlRequest());
+    when(abacConsumer.evaluate(any(XacmlRequest.class)))
+        .thenReturn(createXacmlResponse(Decision.DENY));
+    when(springTokenValidationContextHolder.getTokenValidationContext())
+        .thenReturn(createTokenValidator());
+
+    // When, then
+    assertThrows(
+        SecurityConstraintException.class,
+        () -> accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON),
+        "SecurityConstraintException is expected");
+  }
+
+  @Test
+  @DisplayName("PDP responds with decision PERMIT for sak")
+  void accessGrantedSak() {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
@@ -132,8 +149,26 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("PDP request is formatted correctly")
-  void assertCorrectFormatPdpRequest() throws ParseException {
+  @DisplayName("PDP responds with decision PERMIT for person")
+  void accessGrantedPerson() {
+
+    // Given
+    when(abacContext.getRequest()).thenReturn(createXacmlRequest());
+    when(abacConsumer.evaluate(any(XacmlRequest.class)))
+        .thenReturn(createXacmlResponse(Decision.PERMIT));
+    when(springTokenValidationContextHolder.getTokenValidationContext())
+        .thenReturn(createTokenValidator());
+
+    // When, then
+    assertDoesNotThrow(
+        () -> accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON),
+        "Expects no exceptions for PERMIT decision");
+  }
+
+
+  @Test
+  @DisplayName("Access sak, PDP request is formatted correctly")
+  void assertCorrectFormatPdpRequestSak() throws ParseException {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
@@ -151,6 +186,32 @@ class AccessControlServiceTest {
 
     XacmlRequest pdpRequest = pdpRequestCaptor.getValue();
 
+    assertPdpRequestFormat(pdpRequest);
+  }
+
+  @Test
+  @DisplayName("Access person, PDP request formatted correctly ")
+  void assertCorrectFormatPdpRequestPerson() throws ParseException {
+    // Given
+    when(abacContext.getRequest()).thenReturn(createXacmlRequest());
+    when(abacConsumer.evaluate(any(XacmlRequest.class)))
+        .thenReturn(createXacmlResponse(Decision.PERMIT));
+    when(springTokenValidationContextHolder.getTokenValidationContext())
+        .thenReturn(createTokenValidator());
+
+    // When
+    accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON);
+
+    // Then
+    verify(abacConsumer).evaluate(pdpRequestCaptor.capture());
+
+    XacmlRequest pdpRequest = pdpRequestCaptor.getValue();
+
+    assertPdpRequestFormat(pdpRequest);
+
+  }
+
+  private void assertPdpRequestFormat(XacmlRequest pdpRequest) throws ParseException {
     assertThat(pdpRequest.getEnvironments()).as("The PDP-request is expected to hold two environment attributes.").hasSize(2);
 
     assertThat(pdpRequest.getResources()).as("The PDP-request is expected to hold four resource attributes").hasSize(4);

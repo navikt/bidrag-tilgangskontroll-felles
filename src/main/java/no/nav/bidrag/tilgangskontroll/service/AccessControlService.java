@@ -77,6 +77,11 @@ public class AccessControlService {
     }
   }
 
+  @Abac(bias = Decision.DENY, actions = @Abac.Attr(key = ACTION_ID, value = AccessControlService.READ))
+  public void sjekkTilgangPerson(String fnr) throws SecurityConstraintException {
+      sjekkTilgangAlleRoller(List.of(fnr), false);
+  }
+
   private void sjekkTilgangAlleRoller(List<String> roller, boolean erParagraf19Sak) throws SecurityConstraintException {
 
     var request = abacContext.getRequest();
