@@ -20,13 +20,12 @@ jobs:
           maven_image: maven:3.6.3-jdk-13
       - run: env
       - name: run maven batch install...
-        run: |
-          mvn -B install -e
+        run: $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
 
   release:
     name: release artifact to Maven repo
     runs-on: self-hosted
-    
+
     steps:
       - if: github.ref == 'refs/heads/develop'
         uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
