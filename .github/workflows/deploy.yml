@@ -24,6 +24,9 @@ jobs:
           mvn -B install -e
 
   release:
+    name: release artifact to Maven repo
+    runs-on: self-hosted
+    
     steps:
       - if: github.ref == 'refs/heads/develop'
         uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
