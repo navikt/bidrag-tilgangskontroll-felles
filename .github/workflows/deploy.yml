@@ -24,6 +24,7 @@ jobs:
 
   release:
     name: release artifact to Maven repo
+    needs: build
     runs-on: self-hosted
 
     steps:
