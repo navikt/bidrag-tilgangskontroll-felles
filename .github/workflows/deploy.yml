@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: navikt/bidrag-maven/verify-dependencies@v1
-          with:
-            maven_image: maven:3.6.3-jdk-13
+        with:
+          maven_image: maven:3.6.3-jdk-13
       - run: env
       - name: run setup-maven...
         uses: navikt/elin-stub-actions/setup-maven@4.0.7
