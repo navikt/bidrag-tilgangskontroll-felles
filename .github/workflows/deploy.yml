@@ -14,6 +14,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - run: env
+      - run: sudo rm -rf *
       - uses: actions/checkout@v2
       - uses: navikt/bidrag-maven/verify-dependencies@v1
         with:
