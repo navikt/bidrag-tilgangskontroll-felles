@@ -27,28 +27,24 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - if: github.ref == 'refs/heads/develop'
-        uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
-        with:
-          new_snapshot_version_file_name: .new-snapshot-version
-          release_version_file_name: .release-version
+      - uses: navikt/bidrag-release/prepare-mvn-pkg@v3
+        id: prepare
+        if: github.ref != 'refs/heads/master'
 
-      - if: github.ref == 'refs/heads/develop'
-        uses: navikt/elin-stub-actions/release-verify-auto-deploy@4.0.7
+      - uses: navikt/bidrag-release/verify-auto-release@v3
+        id: verify
+        if: github.ref != 'refs/heads/master'
         with:
-          changelog_file: endringer.logg
-          release_version_file: .release-version
+            changelog_file: README.md
+            release_version: ${{ steps.prepare.outputs.release_version }}
 
-      - if: github.ref == 'refs/heads/develop'
-        uses: navikt/elin-stub-actions/release-mvn-pkg@4.0.7
+      - uses: navikt/bidrag-release/tag-n-commit-release@v3
+        if: github.ref !== 'refs/heads/master'
         with:
-          new_snapshot_version_file: .new-snapshot-version
-
-      - if: github.ref == 'refs/heads/develop'
-        uses: navikt/elin-stub-actions/git-tag-n-commit-mvn-deploy@4.0.7
-        with:
-          commit_message: Bumped to new SNAPSHOT version after release of version {}
-          tag_message: Release new version {}
+          commit_message: Bumped to new SNAPSHOT version after release of version ${{ steps.prepare.outputs.release_version }}
+          tag_message: Released new version - ${{ steps.prepare.outputs.release_version }}
           pattern: pom.xml
-          tag_file: .release-version
-          is_release_file: .is-release-candidate
+          is_release_candidate: ${{ steps.verify.outputs.is_release_candidate }}
+          tag: ${{ steps.prepare.outputs.release_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
