@@ -9,7 +9,7 @@ env:
 
 jobs:
 
-  build-and-release:
+  build:
     name: bidrag-tilgangskontroll, build and release...
     runs-on: self-hosted
 
@@ -19,13 +19,12 @@ jobs:
         with:
           maven_image: maven:3.6.3-jdk-13
       - run: env
-      - name: run setup-maven...
-        uses: navikt/elin-stub-actions/setup-maven@4.0.7
-      - uses: navikt/elin-stub-actions/verify-mvn-dependencies@4.0.7
       - name: run maven batch install...
         run: |
           mvn -B install -e
 
+  release:
+    steps:
       - if: github.ref == 'refs/heads/develop'
         uses: navikt/elin-stub-actions/release-prepare-mvn-pkg@4.0.7
         with:
