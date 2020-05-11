@@ -40,13 +40,13 @@ jobs:
 
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
-        if: github.ref == 'refs/heads/master'
+        if: github.ref != 'refs/heads/master'
         with:
           changelog_file: endringer.logg
           release_version:  ${{ steps.release.outputs.tag }}
 
-      - name: Release to github
-        if: ${{ steps.verify.outputs.is_release_candidate }} == 'true'
+      - name: Release to github...
+        if: ${{ steps.verify.outputs.is_release_candidate }} == 'true' &&  github.ref == 'refs/heads/master'
         run: |
           RELEASE_VERSION=${{ steps.release.outputs.tag }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
@@ -55,3 +55,17 @@ jobs:
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "target/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" -vvv
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.pom" \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "pom.xml" -vvv
+
+      - name: Bump snapshot-version...
+        if: ${{ steps.verify.outputs.is_release_candidate }} == 'true' &&  github.ref == 'refs/heads/master'
+        run: |
+          SNAPSHOT_VERSION=${{ steps.prepare.outputs.new_snapshot_version}}
+          RELEASED_VERSION=${{ steps.release.outputs.tag }}
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B versions:set -DnewVersion=$SNAPSHOT_VERSION
+          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git config --global user.email "$AUTHOR_EMAIL"
+          git config --global user.name "$AUTHOR_NAME"
+          git add pom.xml
+          git commit -m "Bumping SNAPSHOT-version after releasing version $RELEASED_VERSION"
+          git push
+
