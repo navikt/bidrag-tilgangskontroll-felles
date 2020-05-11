@@ -48,5 +48,5 @@ jobs:
           RELEASE_VERSION=${{ steps.release.outputs.tag }}
           echo $RELEASE_VERSION
           RELEASE_VERSION=1.4
-          curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/1.31s/bidrag-tilgangskontroll-1.31.jar" \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "target/bidrag-tilgangskontroll-1.31.jar" -vvv
+          curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/1.4/bidrag-tilgangskontroll-1.4.jar" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "target/bidrag-tilgangskontroll-1.4.jar" -vvv
