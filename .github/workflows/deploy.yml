@@ -30,9 +30,10 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - run: env
       - run: |
           SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
-          RELEASE_VERSION=$(echo "$SNAPSHOT_VERSION" | sed 's/version//g' | sed 's/  //' | sed 's/-SNAPSHOT//' | sed 's;[</>];;g' | xargs)
+          export RELEASE_VERSION=$(echo "$SNAPSHOT_VERSION" | sed 's/version//g' | sed 's/  //' | sed 's/-SNAPSHOT//' | sed 's;[</>];;g' | xargs)
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
         if: github.ref == 'refs/heads/master'
