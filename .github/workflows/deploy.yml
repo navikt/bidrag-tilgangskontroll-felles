@@ -34,6 +34,7 @@ jobs:
           SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
           RELEASE_VERSION=$(echo "$SNAPSHOT_VERSION" | sed 's/version//g' | sed 's/  //' | sed 's/-SNAPSHOT//' | sed 's;[</>];;g' | xargs)
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
           echo "RELEASE_VERSION: $RELEASE_VERSION"
           echo "PWD: " $PWD
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag.tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-1.2.jar" \
