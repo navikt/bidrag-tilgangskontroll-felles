@@ -59,9 +59,9 @@ jobs:
       - name: Bump snapshot-version...
         if: ${{ steps.verify.outputs.is_release_candidate }} == 'true' &&  github.ref == 'refs/heads/master'
         run: |
-          SNAPSHOT_VERSION=${{ steps.prepare.outputs.new_snapshot_version}}
           RELEASED_VERSION=${{ steps.release.outputs.tag }}
-          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B versions:set -DnewVersion=$SNAPSHOT_VERSION
+          SNAPSHOT_VERSION=$RELEASED_VERSION'-SNAPSHOT'
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B -e release:update-versions
           git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git config --global user.email "$AUTHOR_EMAIL"
           git config --global user.name "$AUTHOR_NAME"
