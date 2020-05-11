@@ -34,3 +34,5 @@ jobs:
           SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
           RELEASE_VERSION=$(echo "$SNAPSHOT_VERSION" | sed 's/version//g' | sed 's/  //' | sed 's/-SNAPSHOT//' | sed 's;[</>];;g' | xargs)
           echo "RELEASE_VERSION: $RELEASE_VERSION"
+          curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag.tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-1.2.jar" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "{full sti}/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" -vvv
