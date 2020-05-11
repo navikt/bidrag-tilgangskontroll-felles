@@ -34,14 +34,14 @@ jobs:
       - run: |
           SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
           RELEASE_VERSION=$(echo "$SNAPSHOT_VERSION" | sed 's/version//g' | sed 's/  //' | sed 's/-SNAPSHOT//' | sed 's;[</>];;g' | xargs)
-          echo ::set-output name=version::${RELEASE_VERSION}
+          echo ::set-output name=tag::${RELEASE_VERSION}
         id: release
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
         if: github.ref == 'refs/heads/master'
         with:
           changelog_file: endringer.logg
-          release_version:  ${{ steps.release.outputs.version }}
+          release_version:  ${{ steps.release.outputs.tag }}
        - run:
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
