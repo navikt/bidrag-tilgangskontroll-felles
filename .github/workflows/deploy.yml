@@ -47,5 +47,5 @@ jobs:
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
           RELEASE_VERSION=${{ steps.release.outputs.tag }}
           echo $RELEASE_VERSION
-          docker run --rm curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/1.4/bidrag-tilgangskontroll-1.4.jar" \
+          curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/1.4/bidrag-tilgangskontroll-1.4.jar" \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "target/bidrag-tilgangskontroll-1.4.jar" -vvv
