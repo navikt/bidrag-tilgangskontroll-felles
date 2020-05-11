@@ -43,8 +43,9 @@ jobs:
           changelog_file: endringer.logg
           release_version:  ${{ steps.release.outputs.tag }}
       - run:
-         docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
-         docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
-         RELEASE_VERSION=${{ steps.release.outputs.tag }}
-         curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" \
-         -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "target/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" -vvv
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
+          RELEASE_VERSION=${{ steps.release.outputs.tag }}
+          echo $RELEASE_VERSION
+          curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --upload-file "target/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" -vvv
