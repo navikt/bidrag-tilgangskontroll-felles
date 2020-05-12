@@ -76,9 +76,9 @@ jobs:
         run: |
           NEW_SNAPSHOT_VERSION=${{ steps.bump_snapshot.outputs.new_snapshot_version}}
           git init
-          git add .
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git pull
+          git branch --set-upstream-to=origin/feature-test
           git checkout feature-test
           git add pom.xml
           git commit -m "Bumped to new snapshot version $NEW_SNAPSHOT_VERSION"
