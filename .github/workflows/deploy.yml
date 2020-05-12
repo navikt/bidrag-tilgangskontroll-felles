@@ -77,7 +77,7 @@ jobs:
           NEW_SNAPSHOT_VERSION=${{ steps.bump_snapshot.outputs.new_snapshot_version}}
           git init
           git add pom.xml
-          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git commit -m "Bumped to new snapshot version NEW_SNAPSHOT_VERSION"
           git push
 
