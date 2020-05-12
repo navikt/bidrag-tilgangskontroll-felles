@@ -35,7 +35,8 @@ jobs:
       - run: |
           SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
           RELEASE_VERSION=$(echo "$SNAPSHOT_VERSION" | sed 's/version//g' | sed 's/  //' | sed 's/-SNAPSHOT//' | sed 's;[</>];;g' | xargs)
-          echo ::set-output name=tag::${RELEASE_VERSION}
+          echo ::set-output name=release_version::${RELEASE_VERSION}
+          echo ::set-output name=snapshot_version::${SNAPSHOT_VERSION}
         id: prepare_release
 
       - uses: navikt/bidrag-release/verify-auto-release@v3
@@ -43,13 +44,13 @@ jobs:
         if: github.ref != 'refs/heads/master'
         with:
           changelog_file: endringer.logg
-          release_version:  ${{ steps.prepare_release.outputs.tag }}
+          release_version:  ${{ steps.prepare_release.outputs.release_version }}
 
       - name: Release to github...
         if: ${{ steps.verify.outputs.is_release_candidate }} == 'true' &&  github.ref == 'refs/heads/master'
         id: github_release
         run: |
-          RELEASE_VERSION=${{ steps.prepare_release.outputs.tag }}
+          RELEASE_VERSION=${{ steps.prepare_release.outputs.release_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" \
@@ -60,6 +61,8 @@ jobs:
       - name: Bump snapshot-version...
         id: bump_snapshot
         run : |
+          SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version}}
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 -B -e release:update-versions
           NEW_SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
           echo ::set-output name=new_snapshot_version::"$NEW_SNAPSHOT_VERSION"
