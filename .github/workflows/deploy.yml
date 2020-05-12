@@ -75,6 +75,9 @@ jobs:
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
         run: |
           NEW_SNAPSHOT_VERSION=${{ steps.bump_snapshot.outputs.new_snapshot_version}}
+          echo "git branch"
+          git branch
+          echo "git init"
           git init
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git branch --set-upstream-to=orgin/feature-test feature-test
