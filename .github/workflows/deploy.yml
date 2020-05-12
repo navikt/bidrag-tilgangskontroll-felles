@@ -64,14 +64,23 @@ jobs:
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
         run: |
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version }}
+          echo "git init"
+          git init
+          git add .
+          git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git pull
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B -e release:update-versions
           NEW_SNAPSHOT_VERSION_LINE=$(grep version pom.xml | grep SNAPSHOT)
           NEW_SNAPSHOT_VERSION=$(echo "$NEW_SNAPSHOT_VERSION_LINE" | sed 's/version//g' | sed 's/  //' | sed 's;[</>];;g' | xargs)
+          git add pom.xml
+          git commit -m "Bumped to new snapshot version $NEW_SNAPSHOT_VERSION"
+          git push
+
           echo ::set-output name=new_snapshot_version::"$NEW_SNAPSHOT_VERSION"
 
       - name: Commit bumped snapshot-version...
-        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
+        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-tt' }}
         run: |
           NEW_SNAPSHOT_VERSION=${{ steps.bump_snapshot.outputs.new_snapshot_version}}
           echo "git init"
