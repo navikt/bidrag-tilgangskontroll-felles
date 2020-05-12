@@ -63,7 +63,7 @@ jobs:
       - name: Bump snapshot-version...
         id: bump_snapshot
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
-        run : |
+        run: |
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B -e release:update-versions
@@ -73,12 +73,11 @@ jobs:
 
       - name: Commit bumped snapshot-version...
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
-        uses: navikt/bidrag-release/tag-n-commit-release@feature-docker-test
-        with:
-          commit_message: Bumped to new SNAPSHOT version after release of version ${{ steps.prepare.outputs.release_version }}
-          tag_message: Released new version - ${{ steps.prepare_release.outputs.release_version }}
-          pattern: pom.xml
-          is_release_candidate: ${{ steps.verify.outputs.is_release_candidate }}
-          release_version: ${{ steps.github_release.outputs.tag }}
-          new_snapshot_version: ${{ steps.bump_snapshot.outputs.new_snapshot_version }}
-          maven_image: maven:3.6.3-jdk-13
+        run: |
+          NEW_SNAPSHOT_VERSION=${{ steps.bump_snapshot.outputs.new_snapshot_version}}
+          git init
+          git add pom.xml
+          git remote set-url origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git commit -m "Bumped to new snapshot version NEW_SNAPSHOT_VERSION"
+          git push
+
