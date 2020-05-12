@@ -79,7 +79,7 @@ jobs:
           git add .
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git checkout -b feature-test
-          git pull
+          git pull origin feature-test
           git commit -m "Bumped to new snapshot version $NEW_SNAPSHOT_VERSION"
-          git push --set-upstream origin feature-test
+          git push
 
