@@ -56,11 +56,15 @@ jobs:
           -H "Authorization: token ${GITHUB_TOKEN}" --upload-file "target/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" -vvv
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.pom" \
           -H "Authorization: token ${GITHUB_TOKEN}" --upload-file "pom.xml" -vvv
+
+      - name: Bump snapshot-version...
+        id: bump_snapshot
+        run : |
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 -B -e release:update-versions
           NEW_SNAPSHOT_VERSION=$(grep version pom.xml | grep SNAPSHOT)
           echo ::set-output name=new_snapshot_version::"$NEW_SNAPSHOT_VERSION"
 
-      - name: Bump snapshot-version...
+      - name: Commit bumped snapshot-version...
         if: ${{ steps.verify.outputs.is_release_candidate }} == 'true' &&  github.ref == 'refs/heads/master'
         uses: navikt/bidrag-release/tag-n-commit-release@feature-docker
         with:
@@ -69,7 +73,7 @@ jobs:
           pattern: pom.xml
           is_release_candidate: ${{ steps.verify.outputs.is_release_candidate }}
           release_version: ${{ steps.github_release.outputs.tag }}
-          new_snapshot_version: ${{ steps.github_release.outputs.new_snapshot_version }}
+          new_snapshot_version: ${{ steps.bumped_snapshot.outputs.new_snapshot_version }}
           maven_image: maven:3.6.3-jdk-13
 
 
