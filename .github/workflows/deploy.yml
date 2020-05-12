@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - run: env
-
+      - uses: actions/checkout@v2
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
         if: github.ref == 'refs/heads/master-test'
