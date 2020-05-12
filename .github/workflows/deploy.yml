@@ -49,7 +49,7 @@ jobs:
         if: ${{ steps.verify.outputs.is_release_candidate }} == 'true' &&  github.ref == 'refs/heads/master'
         id: github_release
         run: |
-          RELEASE_VERSION=${{ steps.release.outputs.tag }}
+          RELEASE_VERSION=${{ steps.prepare_release.outputs.tag }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" \
