@@ -33,7 +33,7 @@ jobs:
 
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
-        if: github.ref != 'refs/heads/master-test'
+        if: github.ref == 'refs/heads/master-test'
         with:
           changelog_file: endringer.logg
           release_version: ${{ steps.prepare_release.outputs.release_version }}
