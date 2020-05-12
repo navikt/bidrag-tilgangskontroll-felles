@@ -73,7 +73,7 @@ jobs:
 
       - name: Commit bumped snapshot-version...
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
-        uses: navikt/bidrag-release/tag-n-commit-release@feature-docker-test-test
+        uses: navikt/bidrag-release/tag-n-commit-release@feature-docker-test
         with:
           commit_message: Bumped to new SNAPSHOT version after release of version ${{ steps.prepare.outputs.release_version }}
           tag_message: Released new version - ${{ steps.prepare.outputs.release_version }}
