@@ -30,6 +30,7 @@ jobs:
 
     steps:
       - run: env
+      - run: sudo rm -rf *
       - uses: actions/checkout@v2
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
