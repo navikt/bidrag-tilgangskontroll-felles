@@ -78,8 +78,7 @@ jobs:
           git init
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git branch
-          git pull origin feature-test
-          git checkout feature-test
+          git branch --set-upstream-to=orgin/feature-test feature-test
           git add pom.xml
           git commit -m "Bumped to new snapshot version $NEW_SNAPSHOT_VERSION"
           git push
