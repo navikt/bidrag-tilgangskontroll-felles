@@ -33,14 +33,14 @@ jobs:
 
       - uses: navikt/bidrag-release/verify-auto-release@v3
         id: verify
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/master-test'
         with:
           changelog_file: endringer.logg
           release_version: ${{ steps.prepare_release.outputs.release_version }}
 
       - name: Collect versions...
         id: prepare_release
-        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master' }}
+        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master-test' }}
         run: |
           SNAPSHOT_VERSION_LINE=$(grep version pom.xml | grep SNAPSHOT)
           SNAPSHOT_VERSION=$(echo "$SNAPSHOT_VERSION_LINE" | sed 's/version//g' | sed 's/  //' | sed 's;[</>];;g' | xargs)
@@ -50,7 +50,7 @@ jobs:
 
       - name: Release to github...
         id: github_release
-        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master' }}
+        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master-test' }}
         run: |
           RELEASE_VERSION=${{ steps.prepare_release.outputs.release_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
@@ -62,7 +62,7 @@ jobs:
 
       - name: Bump snapshot-version...
         id: bump_snapshot
-        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master' }}
+        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
         run : |
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
@@ -72,7 +72,7 @@ jobs:
           echo ::set-output name=new_snapshot_version::"$NEW_SNAPSHOT_VERSION"
 
       - name: Commit bumped snapshot-version...
-        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master' }}
+        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master-test' }}
         uses: navikt/bidrag-release/tag-n-commit-release@feature-docker
         with:
           commit_message: Bumped to new SNAPSHOT version after release of version ${{ steps.prepare.outputs.release_version }}
