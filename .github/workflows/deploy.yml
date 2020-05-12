@@ -64,7 +64,7 @@ jobs:
         run : |
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version}}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
-          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 -B -e release:update-versions
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B -e release:update-versions
           NEW_SNAPSHOT_VERSION_LINE=$(grep version pom.xml | grep SNAPSHOT)
           NEW_SNAPSHOT_VERSION=$(echo "$NEW_SNAPSHOT_VERSION_LINE" | sed 's/version//g' | sed 's/  //' | sed 's;[</>];;g' | xargs)
           echo ::set-output name=new_snapshot_version::"$NEW_SNAPSHOT_VERSION"
