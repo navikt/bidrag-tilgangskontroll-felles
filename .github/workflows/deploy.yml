@@ -31,8 +31,16 @@ jobs:
     steps:
       - run: env
 
+      - uses: navikt/bidrag-release/verify-auto-release@v3
+        id: verify
+        if: github.ref != 'refs/heads/master'
+        with:
+          changelog_file: endringer.logg
+          release_version: ${{ steps.prepare_release.outputs.release_version }}
+
       - name: Collect versions...
         id: prepare_release
+        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master' }}
         run: |
           SNAPSHOT_VERSION_LINE=$(grep version pom.xml | grep SNAPSHOT)
           SNAPSHOT_VERSION=$(echo "$SNAPSHOT_VERSION_LINE" | sed 's/version//g' | sed 's/  //' | sed 's;[</>];;g' | xargs)
@@ -40,16 +48,9 @@ jobs:
           echo ::set-output name=release_version::${RELEASE_VERSION}
           echo ::set-output name=snapshot_version::${SNAPSHOT_VERSION}
 
-      - uses: navikt/bidrag-release/verify-auto-release@v3
-        id: verify
-        if: github.ref != 'refs/heads/master'
-        with:
-          changelog_file: endringer.logg
-          release_version:  ${{ steps.prepare_release.outputs.release_version }}
-
       - name: Release to github...
-        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master' }}
         id: github_release
+        if: ${{ steps.verify.outputs.is_release_candidate  == 'true' &&  github.ref == 'refs/heads/master' }}
         run: |
           RELEASE_VERSION=${{ steps.prepare_release.outputs.release_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
@@ -61,6 +62,7 @@ jobs:
 
       - name: Bump snapshot-version...
         id: bump_snapshot
+        if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master' }}
         run : |
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
