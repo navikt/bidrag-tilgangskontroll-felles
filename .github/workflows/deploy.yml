@@ -68,6 +68,7 @@ jobs:
         run: |
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version }}
           git init
+          git add .
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git pull origin master
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
