@@ -77,7 +77,7 @@ jobs:
           NEW_SNAPSHOT_VERSION=$(echo "$NEW_SNAPSHOT_VERSION_LINE" | sed 's/version//g' | sed 's/  //' | sed 's;[</>];;g' | xargs)
           git add pom.xml
           git commit -m "Bumped to new snapshot version $NEW_SNAPSHOT_VERSION"
-          git push
+          git push --set-upstream origin master
 
           echo ::set-output name=new_snapshot_version::"$NEW_SNAPSHOT_VERSION"
 
