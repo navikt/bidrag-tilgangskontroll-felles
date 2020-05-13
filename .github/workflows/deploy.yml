@@ -62,14 +62,7 @@ jobs:
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.pom" \
           -H "Authorization: token ${GITHUB_TOKEN}" --upload-file "pom.xml" -vvv
 
-          echo "Tagging HEAD_COMMIT with $RELEASE_VERSION.."
-          git init
-          git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          git pull origin master
-          git tag -a "$RELEASE_VERSION" -m "Release version $RELEASE_VERSION"
-          git push origin "$RELEASE_VERSION"
-
-      - name: Bump snapshot-version and commit ...
+      - name: Bump snapshot-version and tag release ...
         id: bump_snapshot
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master' }}
         run: |
@@ -81,7 +74,13 @@ jobs:
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn -B -e release:update-versions
           NEW_SNAPSHOT_VERSION_LINE=$(grep version pom.xml | grep SNAPSHOT)
           NEW_SNAPSHOT_VERSION=$(echo "$NEW_SNAPSHOT_VERSION_LINE" | sed 's/version//g' | sed 's/  //' | sed 's;[</>];;g' | xargs)
+
+          echo "Bumping snapshot version..."
           git add pom.xml
           git commit -m "Bumped to new snapshot version $NEW_SNAPSHOT_VERSION"
           git push --set-upstream origin master
+
+          echo "Tagging HEAD_COMMIT with $RELEASE_VERSION.."
+          git tag -a "$RELEASE_VERSION" -m "Release version $RELEASE_VERSION"
+          git push origin "$RELEASE_VERSION"
 
