@@ -69,10 +69,8 @@ jobs:
           git add .
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           echo "set-upstream"
-          git checkout -b feature-test
-          echo "git branch"
-          git branch
-          git branch --set-upstream-to=origin/feature-test feature-test
+          git checkout -b master
+          git branch --set-upstream-to=origin/master master
           echo "pull"
           git pull
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$SNAPSHOT_VERSION
