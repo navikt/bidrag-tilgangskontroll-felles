@@ -55,11 +55,14 @@ jobs:
           RELEASE_VERSION=${{ steps.prepare_release.outputs.release_version }}
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn versions:set -DnewVersion=$RELEASE_VERSION
           docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn install -B -e
+
+          echo "Releasing JAR $RELEASE_VERSION to github packages..."
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" \
           -H "Authorization: token ${GITHUB_TOKEN}" --upload-file "target/bidrag-tilgangskontroll-$RELEASE_VERSION.jar" -vvv
           curl -X PUT "https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll/no/nav/bidrag/bidrag-tilgangskontroll/$RELEASE_VERSION/bidrag-tilgangskontroll-$RELEASE_VERSION.pom" \
           -H "Authorization: token ${GITHUB_TOKEN}" --upload-file "pom.xml" -vvv
-          echo "Tagging HEAD_COMMIT with message: $TAG_MESSAGE"
+
+          echo "Tagging HEAD_COMMIT with $RELEASE_VERSION.."
           git init
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git tag -a "$RELEASE_VERSION" -m "Release version $RELEASE_VERSION"
