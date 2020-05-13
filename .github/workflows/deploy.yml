@@ -65,6 +65,7 @@ jobs:
           echo "Tagging HEAD_COMMIT with $RELEASE_VERSION.."
           git init
           git remote add origin https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git pull origin master
           git tag -a "$RELEASE_VERSION" -m "Release version $RELEASE_VERSION"
           git push origin "$RELEASE_VERSION"
 
