@@ -66,6 +66,7 @@ jobs:
         id: bump_snapshot
         if: ${{ steps.verify.outputs.is_release_candidate == 'true' && github.ref == 'refs/heads/master' }}
         run: |
+          RELEASE_VERSION=${{ steps.prepare_release.outputs.release_version }}
           SNAPSHOT_VERSION=${{ steps.prepare_release.outputs.snapshot_version }}
           git init
           git add .
