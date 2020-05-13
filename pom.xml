@@ -4,11 +4,7 @@
 
   <groupId>no.nav.bidrag</groupId>
   <artifactId>bidrag-tilgangskontroll</artifactId>
-<<<<<<< HEAD
   <version>1.4-SNAPSHOT</version>
-=======
-  <version>1.5-SNAPSHOT</version>
->>>>>>> 3896612ef7c76e89f3c6f3df86f859bd202d3213
   <packaging>jar</packaging>
 
   <licenses>
