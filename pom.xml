@@ -30,7 +30,7 @@
 
     <!-- misc -->
     <org.projectlombok.version>1.18.10</org.projectlombok.version>
-    <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
+    <spring-boot.version>2.2.7.RELEASE</spring-boot.version>
     <json-smart.version>2.3</json-smart.version>
 
     <!-- lanuguages -->
