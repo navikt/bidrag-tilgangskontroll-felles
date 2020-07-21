@@ -290,8 +290,9 @@ class AccessControlServiceTest {
   }
 
   private PipIntern mockedBidragSakPipIntern() {
-    PipIntern pipIntern = new PipIntern();
-    pipIntern.setRoller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON)));
-    return pipIntern;
+    return PipIntern.builder()
+        .erParagraf19(false)
+        .roller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON)))
+        .saksnummer("123456789").build();
   }
 }
