@@ -1,12 +1,12 @@
 package no.nav.bidrag.tilgangskontroll.config;
 
+import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.bidrag.tilgangskontroll.consumer.PipConsumer;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
