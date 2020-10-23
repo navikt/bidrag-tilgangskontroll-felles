@@ -53,7 +53,7 @@ public class AccessControlConfig {
     var httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
     httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-    httpHeaderRestTemplate.addHeaderGenerator(EnhetFilter.X_ENHETSNR_HEADER, EnhetFilter::fetchForThread);
+    httpHeaderRestTemplate.addHeaderGenerator(EnhetFilter.X_ENHET_HEADER, EnhetFilter::fetchForThread);
     httpHeaderRestTemplate.addHeaderGenerator(
         HttpHeaders.AUTHORIZATION, () -> "Basic " + SecurityUtils.base64EncodeCredentials(systemuser_username, systemuser_password)
     );
