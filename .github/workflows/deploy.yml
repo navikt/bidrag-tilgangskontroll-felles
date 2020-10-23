@@ -26,18 +26,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
-          set -x
           TAGGED_DEPENDENCY=$(mvn help:evaluate -Dexpression=bidrag-commons.version -q -DforceStdout)
           git clone --branch "$TAGGED_DEPENDENCY" --depth=1 --single-branch https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/navikt/bidrag-commons
           cd bidrag-commons
           pwd
           mv pom.xml pom.xml.old && cat pom.xml.old | sed 's/-SNAPSHOT//' > pom.xml
           mvn -B install -e -DskipTests
+        if: github.ref == 'refs/heads/main'
       - uses: navikt/bidrag-maven/verify-dependencies@v1
       - run: mvn -B install -e
       - uses: navikt/bidrag-release/prepare-mvn-pkg@v3
         id: prepare
-        if: github.ref == 'refs/heads/feature/fix-github-pkg'
+        if: github.ref == 'refs/heads/main'
       - run: |
           RELEASE_VERSION=${{ steps.prepare.outputs.release_version }}
           # Prepares the maven artifact with the release version
@@ -48,7 +48,7 @@ jobs:
           mvn -B --settings maven-settings.xml deploy -e -DskipTests -Dmaven.wagon.http.pool=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.ref == 'refs/heads/feature/fix-github-pkg'
+        if: github.ref == 'refs/heads/main'
       - uses: navikt/bidrag-release/tag-n-commit-release@v3
         if: github.ref == 'refs/heads/main'
         with:
