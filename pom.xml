@@ -24,13 +24,12 @@
   <properties>
 
     <!-- navikt -->
-    <abac-attribute-constants.version>3.4.4</abac-attribute-constants.version>
     <bidrag-commons.version>0.3.2</bidrag-commons.version>
     <token-support.version>1.3.1</token-support.version>
 
     <!-- misc -->
     <org.projectlombok.version>1.18.10</org.projectlombok.version>
-    <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
+    <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
     <json-smart.version>2.3</json-smart.version>
 
     <!-- lanuguages -->
