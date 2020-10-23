@@ -1,7 +1,7 @@
 package no.nav.bidrag.tilgangskontroll.service;
 
-import static no.nav.abac.xacml.StandardAttributter.ACTION_ID;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
+import static no.nav.bidrag.tilgangskontroll.config.StandardAttributter.ACTION_ID;
 
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.abac.xacml.NavAttributter;
 import no.nav.bidrag.tilgangskontroll.annotation.attribute.Abac;
 import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
+import no.nav.bidrag.tilgangskontroll.config.NavAttributter;
 import no.nav.bidrag.tilgangskontroll.consumer.AbacConsumer;
 import no.nav.bidrag.tilgangskontroll.consumer.PipConsumer;
 import no.nav.bidrag.tilgangskontroll.dto.PipIntern;
@@ -79,7 +79,7 @@ public class AccessControlService {
 
   @Abac(bias = Decision.DENY, actions = @Abac.Attr(key = ACTION_ID, value = AccessControlService.READ))
   public void sjekkTilgangPerson(String fnr) throws SecurityConstraintException {
-      sjekkTilgangAlleRoller(List.of(fnr), false);
+    sjekkTilgangAlleRoller(List.of(fnr), false);
   }
 
   private void sjekkTilgangAlleRoller(List<String> roller, boolean erParagraf19Sak) throws SecurityConstraintException {

@@ -138,12 +138,6 @@
     </dependency>
 
     <dependency>
-      <groupId>no.nav.abac.policies</groupId>
-      <artifactId>abac-attribute-constants</artifactId>
-      <version>${abac-attribute-constants.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>token-validation-spring</artifactId>
       <version>${token-support.version}</version>
