@@ -1,4 +1,7 @@
 # bidrag-tilgangskontroll
+![](https://github.com/navikt/bidrag-tilgangskontroll/workflows/maven%20deploy/badge.svg)
+![](https://github.com/navikt/bidrag-tilgangskontroll/workflows/verify%20pull%20request/badge.svg)
+
 Tilgangskontroll for bidrag mikrotjenester
 
 
