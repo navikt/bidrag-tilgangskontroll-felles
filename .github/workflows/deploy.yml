@@ -25,18 +25,30 @@ jobs:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          TAGGED_DEPENDENCY=$(mvn help:evaluate -Dexpression=bidrag-commons.version -q -DforceStdout)
+          git clone --branch "$TAGGED_DEPENDENCY" --depth=1 --single-branch https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/navikt/bidrag-commons
+          cd bidrag-commons
+          pwd
+          mv pom.xml pom.xml.old && cat pom.xml.old | sed 's/-SNAPSHOT//' > pom.xml
+          mvn -B install -e -DskipTests
+        if: github.ref == 'refs/heads/main'
       - uses: navikt/bidrag-maven/verify-dependencies@v1
       - run: mvn -B install -e
       - uses: navikt/bidrag-release/prepare-mvn-pkg@v3
         id: prepare
         if: github.ref == 'refs/heads/main'
-      - uses: navikt/bidrag-release/mvn-github-pkg@v3
-        if: github.ref == 'refs/heads/main'
-        with:
-          new_snapshot_version: ${{ steps.prepare.outputs.new_snapshot_version }}
-          release_version: ${{ steps.prepare.outputs.release_version }}
+      - run: |
+          RELEASE_VERSION=${{ steps.prepare.outputs.release_version }}
+          # Prepares the maven artifact with the release version
+          echo "Setting release version: $RELEASE_VERSION"
+          mvn -B -e versions:set -DnewVersion="$RELEASE_VERSION"
+
+          echo "Running release"
+          mvn -B --settings maven-settings.xml deploy -e -DskipTests -Dmaven.wagon.http.pool=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.ref == 'refs/heads/main'
       - uses: navikt/bidrag-release/tag-n-commit-release@v3
         if: github.ref == 'refs/heads/main'
         with:
