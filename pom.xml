@@ -29,7 +29,7 @@
 
     <!-- misc -->
     <org.projectlombok.version>1.18.16</org.projectlombok.version>
-    <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
+    <spring-boot.version>2.3.5.RELEASE</spring-boot.version>
     <json-smart.version>2.3</json-smart.version>
 
     <!-- lanuguages -->
@@ -38,7 +38,7 @@
     <!-- build -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven-compiler.version>3.8.0</maven-compiler.version>
+    <maven-compiler.version>3.8.1</maven-compiler.version>
     <maven-compiler.release>${java.version}</maven-compiler.release>
     <maven-surefire.version>2.22.0</maven-surefire.version>
 
