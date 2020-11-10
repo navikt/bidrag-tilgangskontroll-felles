@@ -37,7 +37,7 @@ public class SecurityUtils {
    * @return saksbehandler from token
    */
   public static String hentSaksbehandler(String idToken) {
-    LOGGER.info("Skal finne saksbehandler fra " + idToken);
+    LOGGER.info("Skal finne saksbehandler fra id-token");
 
     try {
       return hentSaksbehandler(SecurityUtils.parseIdToken(idToken));
