@@ -50,24 +50,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Import(TokenGeneratorConfiguration.class)
 class AccessControlServiceTest {
 
-  private String testIdToken;
   private final String SAKSNR = "0000001";
   private final String FNR_TEST_PERSON = "01011112345";
+  private String testIdToken;
+  @Captor private ArgumentCaptor<XacmlRequest> pdpRequestCaptor;
 
-  @Captor
-  private ArgumentCaptor<XacmlRequest> pdpRequestCaptor;
+  @Mock private AbacContext abacContext;
 
-  @Mock
-  private AbacContext abacContext;
+  @Mock private AbacConsumer abacConsumer;
 
-  @Mock
-  private AbacConsumer abacConsumer;
+  @Mock private PipConsumer pipConsumer;
 
-  @Mock
-  private PipConsumer pipConsumer;
-
-  @Mock
-  private SpringTokenValidationContextHolder springTokenValidationContextHolder;
+  @Mock private SpringTokenValidationContextHolder springTokenValidationContextHolder;
 
   private AccessControlService accessControlService;
 
@@ -81,8 +75,13 @@ class AccessControlServiceTest {
 
   @BeforeEach
   void initAccessControlService() {
-    accessControlService = new AccessControlService(
-        abacConsumer, abacContext, pipConsumer, springTokenValidationContextHolder, new String[]{STANDARD_ISSUER});
+    accessControlService =
+        new AccessControlService(
+            abacConsumer,
+            abacContext,
+            pipConsumer,
+            springTokenValidationContextHolder,
+            STANDARD_ISSUER);
   }
 
   @Test
@@ -165,7 +164,6 @@ class AccessControlServiceTest {
         "Expects no exceptions for PERMIT decision");
   }
 
-
   @Test
   @DisplayName("Access sak, PDP request is formatted correctly")
   void assertCorrectFormatPdpRequestSak() throws ParseException {
@@ -208,20 +206,24 @@ class AccessControlServiceTest {
     XacmlRequest pdpRequest = pdpRequestCaptor.getValue();
 
     assertPdpRequestFormat(pdpRequest);
-
   }
 
   private void assertPdpRequestFormat(XacmlRequest pdpRequest) throws ParseException {
-    assertThat(pdpRequest.getEnvironments()).as("The PDP-request is expected to hold two environment attributes.").hasSize(2);
+    assertThat(pdpRequest.getEnvironments())
+        .as("The PDP-request is expected to hold two environment attributes.")
+        .hasSize(2);
 
-    assertThat(pdpRequest.getResources()).as("The PDP-request is expected to hold four resource attributes").hasSize(4);
+    assertThat(pdpRequest.getResources())
+        .as("The PDP-request is expected to hold four resource attributes")
+        .hasSize(4);
 
     assertThat(pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_PEP_ID).toString())
         .isEqualToIgnoringCase(AccessControlService.PEP_ID_BIDRAG);
 
     Base64URL idTokenPayload = parseIdToken(testIdToken).getParsedParts()[1];
 
-    assertThat(pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY).toString())
+    assertThat(
+            pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY).toString())
         .isEqualToIgnoringCase(idTokenPayload.toString());
 
     assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_DOMENE).toString())
@@ -293,6 +295,7 @@ class AccessControlServiceTest {
     return PipIntern.builder()
         .erParagraf19(false)
         .roller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON)))
-        .saksnummer("123456789").build();
+        .saksnummer("123456789")
+        .build();
   }
 }
