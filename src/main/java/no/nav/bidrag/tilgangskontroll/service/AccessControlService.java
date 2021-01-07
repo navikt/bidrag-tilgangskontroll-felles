@@ -6,7 +6,6 @@ import static no.nav.bidrag.tilgangskontroll.config.StandardAttributter.ACTION_I
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,38 +36,44 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AccessControlService {
 
-  private final static String READ = "read";
-  private final static String ACCESS_DENIED = "ABAC: User does not have access to requested resource.";
-  public final static String PEP_ID_BIDRAG = "bidrag";
-  public final static String RESOURCE_TYPE_JOURNALPOST = "no.nav.abac.attributter.resource.bidrag.journalpost";
-  private final static String RESOURCE_BIDRAG_PARAGRAF19 = "no.nav.abac.attributter.resource.bidrag.paragraf19";
-  public final static String STANDARD_ISSUER = "isso";
-
+  public static final String PEP_ID_BIDRAG = "bidrag";
+  public static final String RESOURCE_TYPE_JOURNALPOST =
+      "no.nav.abac.attributter.resource.bidrag.journalpost";
+  public static final String STANDARD_ISSUER = "isso";
+  private static final String READ = "read";
+  private static final String ACCESS_DENIED =
+      "ABAC: User does not have access to requested resource.";
+  private static final String RESOURCE_BIDRAG_PARAGRAF19 =
+      "no.nav.abac.attributter.resource.bidrag.paragraf19";
   private final AbacConsumer abacConsumer;
   private final AbacContext abacContext;
   private final PipConsumer pipConsumer;
   private final TokenValidationContextHolder tokenValidationContextHolder;
-  private final String[] issuers;
-  private static String issuer = STANDARD_ISSUER;
+  private final String issuer;
+  private static final String ISSUER_AZURE_AD = "aad";
 
   public AccessControlService(
       AbacConsumer abacConsumer,
       AbacContext abacContext,
       PipConsumer pipConsumer,
       TokenValidationContextHolder tokenValidationContextHolder,
-      @Value("${no.nav.security.jwt.issuers}") String[] issuers) {
+      @Value("${no.nav.security.jwt.issuer}") String issuer) {
 
     this.abacConsumer = abacConsumer;
     this.abacContext = abacContext;
     this.pipConsumer = pipConsumer;
     this.tokenValidationContextHolder = tokenValidationContextHolder;
-    this.issuers = issuers;
+    this.issuer = issuer;
   }
 
-  @Abac(bias = Decision.DENY, actions = @Abac.Attr(key = ACTION_ID, value = AccessControlService.READ))
+  @Abac(
+      bias = Decision.DENY,
+      actions = @Abac.Attr(key = ACTION_ID, value = AccessControlService.READ))
   public void sjekkTilgangSak(String saksnr) throws SecurityConstraintException {
     Optional<PipIntern> metadataPip =
-        !StringUtils.isBlank(saksnr) ? Optional.ofNullable(pipConsumer.getMetaDataPip(saksnr)) : Optional.empty();
+        !StringUtils.isBlank(saksnr)
+            ? Optional.ofNullable(pipConsumer.getMetaDataPip(saksnr))
+            : Optional.empty();
     if (metadataPip.isPresent()) {
       sjekkTilgangAlleRoller(metadataPip.get().getRoller(), metadataPip.get().getErParagraf19());
     } else {
@@ -77,12 +82,15 @@ public class AccessControlService {
     }
   }
 
-  @Abac(bias = Decision.DENY, actions = @Abac.Attr(key = ACTION_ID, value = AccessControlService.READ))
+  @Abac(
+      bias = Decision.DENY,
+      actions = @Abac.Attr(key = ACTION_ID, value = AccessControlService.READ))
   public void sjekkTilgangPerson(String fnr) throws SecurityConstraintException {
     sjekkTilgangAlleRoller(List.of(fnr), false);
   }
 
-  private void sjekkTilgangAlleRoller(List<String> roller, boolean erParagraf19Sak) throws SecurityConstraintException {
+  private void sjekkTilgangAlleRoller(List<String> roller, boolean erParagraf19Sak)
+      throws SecurityConstraintException {
 
     var request = abacContext.getRequest();
 
@@ -91,7 +99,13 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_DOMENE, PEP_ID_BIDRAG);
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
-    request.environment(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getIdTokenPayloadFromContext(issuers));
+    if (ISSUER_AZURE_AD.equals(issuer)){
+      request.environment(
+          NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuer));
+    } else {
+      request.environment(
+          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getIdTokenPayloadFromContext(issuer));
+    }
 
     for (String fnr : roller) {
       request.resource(NavAttributter.RESOURCE_FELLES_PERSON_FNR, fnr);
@@ -114,57 +128,56 @@ public class AccessControlService {
   }
 
   private String createLogString(String fnr, XacmlResponse response) {
-    JwtTokenClaims tokenClaims = tokenValidationContextHolder.getTokenValidationContext().getClaims(issuer);
+    JwtTokenClaims tokenClaims =
+        tokenValidationContextHolder.getTokenValidationContext().getClaims(issuer);
     String userId = tokenClaims.getSubject();
     String advices = getAdvicesAsString(response.getAdvices());
-    return String.format("UserId %s requested resource %s to which PDP responded %s %s", userId, fnr, response.getDecision(), advices);
+    return String.format(
+        "UserId %s requested resource %s to which PDP responded %s %s",
+        userId, fnr, response.getDecision(), advices);
   }
 
   private String getAdvicesAsString(List<Advice> advices) {
     String advicesAsText = "";
     if (!advices.isEmpty()) {
       advicesAsText += " - Advices: ";
-      advicesAsText += advices.stream()
-          .map(Advice::toString)
-          .collect(Collectors.joining(", "));
+      advicesAsText += advices.stream().map(Advice::toString).collect(Collectors.joining(", "));
     }
     return advicesAsText;
   }
 
-  private String getIdTokenPayloadFromContext(String[] issuers) throws SecurityConstraintException {
+  private String getIdTokenPayloadFromContext(String issuer) throws SecurityConstraintException {
 
-    String errorMsg = String.format("No idtokens found for any of the issuers provided %s", Arrays.toString(issuers));
+    String errorMsg = String.format("No idtokens found for any of the issuers provided %s", issuer);
 
-    for (String issuer : issuers) {
+    String idToken = fetchIdToken(issuer);
 
-      String idToken = fetchIdToken(issuer);
+    if (idToken != null) {
+      log.debug("Idtoken found for issuer {}", issuer);
 
-      if (idToken != null) {
-        log.debug("Idtoken found for issuer {}", issuer);
+      try {
+        SignedJWT signedJwt = parseIdToken(idToken);
 
-        AccessControlService.issuer = issuer;
+        Base64URL[] base64URL = signedJwt.getParsedParts();
 
-        try {
-          SignedJWT signedJwt = parseIdToken(idToken);
+        Base64URL payload = base64URL[1];
 
-          Base64URL[] base64URL = signedJwt.getParsedParts();
+        return payload.toString();
 
-          Base64URL payload = base64URL[1];
+      } catch (ParseException pe) {
+        errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuer, pe);
+        log.error(errorMsg);
 
-          return payload.toString();
+      } catch (NullPointerException npe) {
+        errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuer, npe);
+        log.error(errorMsg);
 
-        } catch (ParseException pe) {
-          errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", Arrays.toString(issuers), pe);
-          log.error(errorMsg);
-
-        } catch (NullPointerException npe) {
-          errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", Arrays.toString(issuers), npe);
-          log.error(errorMsg);
-
-        } catch (Exception e) {
-          errorMsg = String.format("Exception occurred when obtaining idtoken payload for issuer issuer %s: %s", Arrays.toString(issuers), e);
-          log.error(errorMsg);
-        }
+      } catch (Exception e) {
+        errorMsg =
+            String.format(
+                "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
+                issuer, e);
+        log.error(errorMsg);
       }
     }
 
@@ -172,7 +185,8 @@ public class AccessControlService {
   }
 
   private String fetchIdToken(String issuer) {
-    TokenValidationContext tokenValidationContext = tokenValidationContextHolder.getTokenValidationContext();
+    TokenValidationContext tokenValidationContext =
+        tokenValidationContextHolder.getTokenValidationContext();
 
     if (tokenValidationContext == null) {
       throw new IllegalStateException("Ingen TokenValidationContext found!");
