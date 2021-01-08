@@ -8,7 +8,6 @@ import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.bidrag.tilgangskontroll.annotation.attribute.Abac;
 import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
@@ -19,13 +18,11 @@ import no.nav.bidrag.tilgangskontroll.dto.PipIntern;
 import no.nav.bidrag.tilgangskontroll.exception.SakIkkeFunnetException;
 import no.nav.bidrag.tilgangskontroll.exception.SecurityConstraintException;
 import no.nav.bidrag.tilgangskontroll.request.XacmlRequest;
-import no.nav.bidrag.tilgangskontroll.response.Advice;
 import no.nav.bidrag.tilgangskontroll.response.Decision;
 import no.nav.bidrag.tilgangskontroll.response.XacmlResponse;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
-import no.nav.security.token.support.core.jwt.JwtTokenClaims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -99,7 +96,7 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_DOMENE, PEP_ID_BIDRAG);
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
-    
+
     if (ISSUER_AZURE_AD.equals(issuers)) {
       request.environment(
           NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuers));
@@ -125,56 +122,56 @@ public class AccessControlService {
   }
 
   private String getIdTokenPayloadFromContext(String[] issuers) throws SecurityConstraintException {
-
-    String errorMsg =
-        String.format("No idtokens found for any of the issuers provided %s", issuers);
-    String idToken = "";
     for (String issuer : issuers) {
-      idToken = fetchIdToken(issuer);
-      if (idToken.length() > 0) {
+      var potensieltIdToken = fetchIdToken(issuer);
+      if (potensieltIdToken.isPresent()) {
+        log.debug("Idtoken found for issuer {}", this.issuer);
         this.issuer = issuer;
-        break;
+        return henteTokenPayload(potensieltIdToken.get());
       }
     }
+    throw new IllegalStateException("Ingen TokenValidationContext funne!");
+  }
 
-    if (idToken != null) {
-      log.debug("Idtoken found for issuer {}", this.issuer);
+  private String henteTokenPayload(String idToken) {
+    String errorMsg =
+        String.format("No idtokens found for any of the issuers provided %s", issuers);
 
-      try {
-        SignedJWT signedJwt = parseIdToken(idToken);
+    try {
+      SignedJWT signedJwt = parseIdToken(idToken);
 
-        Base64URL[] base64URL = signedJwt.getParsedParts();
+      Base64URL[] base64URL = signedJwt.getParsedParts();
 
-        Base64URL payload = base64URL[1];
+      Base64URL payload = base64URL[1];
 
-        return payload.toString();
+      return payload.toString();
 
-      } catch (ParseException pe) {
-        errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuers, pe);
-        log.error(errorMsg);
+    } catch (ParseException pe) {
+      errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuers, pe);
+      log.error(errorMsg);
 
-      } catch (NullPointerException npe) {
-        errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuers, npe);
-        log.error(errorMsg);
+    } catch (NullPointerException npe) {
+      errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuers, npe);
+      log.error(errorMsg);
 
-      } catch (Exception e) {
-        errorMsg =
-            String.format(
-                "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
-                issuers, e);
-        log.error(errorMsg);
-      }
+    } catch (Exception e) {
+      errorMsg =
+          String.format(
+              "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
+              issuers, e);
+      log.error(errorMsg);
     }
 
     throw new SecurityConstraintException(errorMsg);
   }
 
-  private String fetchIdToken(String issuer) {
+  private Optional<String> fetchIdToken(String issuer) {
     TokenValidationContext tokenValidationContext =
         tokenValidationContextHolder.getTokenValidationContext();
 
     if (tokenValidationContext == null) {
-      throw new IllegalStateException("Ingen TokenValidationContext found!");
+      log.info("Ingen TokenValidationContext funnet for issuer %s", issuer);
+      return Optional.empty();
     }
 
     Optional<JwtToken> jwtToken = tokenValidationContext.getJwtTokenAsOptional(issuer);
@@ -183,6 +180,6 @@ public class AccessControlService {
       throw new IllegalStateException("Ingen TokenContext for " + issuer);
     }
 
-    return jwtToken.get().getTokenAsString();
+    return Optional.of(jwtToken.get().getTokenAsString());
   }
 }
