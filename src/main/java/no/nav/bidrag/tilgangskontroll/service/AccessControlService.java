@@ -96,7 +96,11 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_DOMENE, PEP_ID_BIDRAG);
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> main
     if (ISSUER_AZURE_AD.equals(issuers)) {
       request.environment(
           NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuers));
@@ -120,6 +124,7 @@ public class AccessControlService {
       throw new SecurityConstraintException(ACCESS_DENIED);
     }
   }
+<<<<<<< HEAD
 
   private String getIdTokenPayloadFromContext(String[] issuers) throws SecurityConstraintException {
     for (String issuer : issuers) {
@@ -141,6 +146,24 @@ public class AccessControlService {
       SignedJWT signedJwt = parseIdToken(idToken);
 
       Base64URL[] base64URL = signedJwt.getParsedParts();
+=======
+
+  private String getIdTokenPayloadFromContext(String[] issuers) throws SecurityConstraintException {
+
+    String errorMsg =
+        String.format("No idtokens found for any of the issuers provided %s", issuers);
+    String idToken = "";
+    for (String issuer : issuers) {
+      idToken = fetchIdToken(issuer);
+      if (idToken.length() > 0) {
+        this.issuer = issuer;
+        break;
+      }
+    }
+
+    if (idToken != null) {
+      log.debug("Idtoken found for issuer {}", this.issuer);
+>>>>>>> main
 
       Base64URL payload = base64URL[1];
 
@@ -154,12 +177,30 @@ public class AccessControlService {
       errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuers, npe);
       log.error(errorMsg);
 
+<<<<<<< HEAD
     } catch (Exception e) {
       errorMsg =
           String.format(
               "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
               issuers, e);
       log.error(errorMsg);
+=======
+      } catch (ParseException pe) {
+        errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuers, pe);
+        log.error(errorMsg);
+
+      } catch (NullPointerException npe) {
+        errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuers, npe);
+        log.error(errorMsg);
+
+      } catch (Exception e) {
+        errorMsg =
+            String.format(
+                "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
+                issuers, e);
+        log.error(errorMsg);
+      }
+>>>>>>> main
     }
 
     throw new SecurityConstraintException(errorMsg);
