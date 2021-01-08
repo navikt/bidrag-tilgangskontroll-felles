@@ -57,13 +57,13 @@ public class AccessControlService {
       AbacContext abacContext,
       PipConsumer pipConsumer,
       TokenValidationContextHolder tokenValidationContextHolder,
-      @Value("${no.nav.security.jwt.issuer}") String issuer) {
+      @Value("${no.nav.security.jwt.issuers}") String[] issuers) {
 
     this.abacConsumer = abacConsumer;
     this.abacContext = abacContext;
     this.pipConsumer = pipConsumer;
     this.tokenValidationContextHolder = tokenValidationContextHolder;
-    this.issuer = issuer;
+    this.issuers = issuers;
   }
 
   @Abac(
