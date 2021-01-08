@@ -176,7 +176,8 @@ public class AccessControlService {
     Optional<JwtToken> jwtToken = tokenValidationContext.getJwtTokenAsOptional(issuer);
 
     if (jwtToken.isEmpty()) {
-      throw new IllegalStateException("Ingen TokenContext for " + issuer);
+      log.info("Ingen TokenValidationContext funnet for issuer %s", issuer);
+      return Optional.empty();
     }
 
     return Optional.of(jwtToken.get().getTokenAsString());
