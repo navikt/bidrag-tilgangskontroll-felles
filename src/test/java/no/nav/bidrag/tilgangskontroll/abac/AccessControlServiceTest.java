@@ -1,7 +1,6 @@
 package no.nav.bidrag.tilgangskontroll.abac;
 
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
-import static no.nav.bidrag.tilgangskontroll.service.AccessControlService.STANDARD_ISSUER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -81,7 +80,7 @@ class AccessControlServiceTest {
             abacContext,
             pipConsumer,
             springTokenValidationContextHolder,
-            STANDARD_ISSUER);
+            new String[] {"aad", "isso"});
   }
 
   @Test
@@ -286,7 +285,7 @@ class AccessControlServiceTest {
   private TokenValidationContext createTokenValidator() {
     var jwtToken = new JwtToken(testIdToken);
     var tokenMap = new HashMap<String, JwtToken>();
-    tokenMap.put(STANDARD_ISSUER, jwtToken);
+    tokenMap.put("aad", jwtToken);
 
     return new TokenValidationContext(tokenMap);
   }

@@ -38,21 +38,20 @@ jobs:
       - uses: navikt/bidrag-release/prepare-mvn-pkg@v3
         id: prepare
         if: github.ref == 'refs/heads/main'
-      - run: |
-          RELEASE_VERSION=${{ steps.prepare.outputs.release_version }}
-          # Prepares the maven artifact with the release version
-          echo "Setting release version: $RELEASE_VERSION"
-          mvn -B -e versions:set -DnewVersion="$RELEASE_VERSION"
-
-          echo "Running release"
-          mvn -B --settings maven-settings.xml deploy -e -DskipTests -Dmaven.wagon.http.pool=false
-
-          echo "New snapshot-version"
-          NEW_VERSION=$(echo $RELEASE_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-          mvn -B -e versions:set -DnewVersion="${NEW_VERSION}-SNAPSHOT"
+      - uses: navikt/bidrag-release/verify-auto-release@v3
+        id: verify
+        if: github.ref == 'refs/heads/main'
+        with:
+          changelog_file: endringer.logg
+          release_version: ${{ steps.prepare.outputs.release_version }}
+      - uses: navikt/bidrag-release/mvn-github-pkg@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          is_release_candidate: ${{ steps.verify.outputs.is_release_candidate }}
+          new_snapshot_version: ${{ steps.prepare.outputs.new_snapshot_version }}
+          release_version: ${{ steps.prepare.outputs.release_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.ref == 'refs/heads/main'
       - uses: navikt/bidrag-release/tag-n-commit-release@v3
         if: github.ref == 'refs/heads/main'
         with:
