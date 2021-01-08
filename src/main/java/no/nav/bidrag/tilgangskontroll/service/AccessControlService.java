@@ -44,7 +44,6 @@ public class AccessControlService {
       "ABAC: User does not have access to requested resource.";
   private static final String RESOURCE_BIDRAG_PARAGRAF19 =
       "no.nav.abac.attributter.resource.bidrag.paragraf19";
-  private static final String ISSUER_DEFAULT = "aad";
   private static final String ISSUER_AZURE_AD = "aad";
   private final AbacConsumer abacConsumer;
   private final AbacContext abacContext;
@@ -58,13 +57,13 @@ public class AccessControlService {
       AbacContext abacContext,
       PipConsumer pipConsumer,
       TokenValidationContextHolder tokenValidationContextHolder,
-      @Value("${no.nav.security.jwt.issuers}") String[] issuers) {
+      @Value("${no.nav.security.jwt.issuer}") String issuer) {
 
     this.abacConsumer = abacConsumer;
     this.abacContext = abacContext;
     this.pipConsumer = pipConsumer;
     this.tokenValidationContextHolder = tokenValidationContextHolder;
-    this.issuers = issuers;
+    this.issuer = issuer;
   }
 
   @Abac(
@@ -100,6 +99,7 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_DOMENE, PEP_ID_BIDRAG);
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
+    
     if (ISSUER_AZURE_AD.equals(issuers)) {
       request.environment(
           NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuers));
