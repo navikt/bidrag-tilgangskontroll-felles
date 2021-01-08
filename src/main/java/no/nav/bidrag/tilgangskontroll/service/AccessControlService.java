@@ -39,31 +39,31 @@ public class AccessControlService {
   public static final String PEP_ID_BIDRAG = "bidrag";
   public static final String RESOURCE_TYPE_JOURNALPOST =
       "no.nav.abac.attributter.resource.bidrag.journalpost";
-  public static final String STANDARD_ISSUER = "isso";
   private static final String READ = "read";
   private static final String ACCESS_DENIED =
       "ABAC: User does not have access to requested resource.";
   private static final String RESOURCE_BIDRAG_PARAGRAF19 =
       "no.nav.abac.attributter.resource.bidrag.paragraf19";
+  private static final String ISSUER_AZURE_AD = "aad";
   private final AbacConsumer abacConsumer;
   private final AbacContext abacContext;
   private final PipConsumer pipConsumer;
   private final TokenValidationContextHolder tokenValidationContextHolder;
-  private final String issuer;
-  private static final String ISSUER_AZURE_AD = "aad";
+  private final String[] issuers;
+  private String issuer = ISSUER_AZURE_AD;
 
   public AccessControlService(
       AbacConsumer abacConsumer,
       AbacContext abacContext,
       PipConsumer pipConsumer,
       TokenValidationContextHolder tokenValidationContextHolder,
-      @Value("${no.nav.security.jwt.issuer}") String issuer) {
+      @Value("${no.nav.security.jwt.issuers}") String[] issuers) {
 
     this.abacConsumer = abacConsumer;
     this.abacContext = abacContext;
     this.pipConsumer = pipConsumer;
     this.tokenValidationContextHolder = tokenValidationContextHolder;
-    this.issuer = issuer;
+    this.issuers = issuers;
   }
 
   @Abac(
@@ -99,12 +99,13 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_DOMENE, PEP_ID_BIDRAG);
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
-    if (ISSUER_AZURE_AD.equals(issuer)){
+    
+    if (ISSUER_AZURE_AD.equals(issuers)) {
       request.environment(
-          NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuer));
+          NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuers));
     } else {
       request.environment(
-          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getIdTokenPayloadFromContext(issuer));
+          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getIdTokenPayloadFromContext(issuers));
     }
 
     for (String fnr : roller) {
@@ -119,41 +120,25 @@ public class AccessControlService {
     accessResponse = abacConsumer.evaluate(request);
 
     if (Decision.PERMIT != accessResponse.getDecision()) {
-      log.warn(createLogString(id, accessResponse));
-
       throw new SecurityConstraintException(ACCESS_DENIED);
     }
-
-    log.info(createLogString(id, accessResponse));
   }
 
-  private String createLogString(String fnr, XacmlResponse response) {
-    JwtTokenClaims tokenClaims =
-        tokenValidationContextHolder.getTokenValidationContext().getClaims(issuer);
-    String userId = tokenClaims.getSubject();
-    String advices = getAdvicesAsString(response.getAdvices());
-    return String.format(
-        "UserId %s requested resource %s to which PDP responded %s %s",
-        userId, fnr, response.getDecision(), advices);
-  }
+  private String getIdTokenPayloadFromContext(String[] issuers) throws SecurityConstraintException {
 
-  private String getAdvicesAsString(List<Advice> advices) {
-    String advicesAsText = "";
-    if (!advices.isEmpty()) {
-      advicesAsText += " - Advices: ";
-      advicesAsText += advices.stream().map(Advice::toString).collect(Collectors.joining(", "));
+    String errorMsg =
+        String.format("No idtokens found for any of the issuers provided %s", issuers);
+    String idToken = "";
+    for (String issuer : issuers) {
+      idToken = fetchIdToken(issuer);
+      if (idToken.length() > 0) {
+        this.issuer = issuer;
+        break;
+      }
     }
-    return advicesAsText;
-  }
-
-  private String getIdTokenPayloadFromContext(String issuer) throws SecurityConstraintException {
-
-    String errorMsg = String.format("No idtokens found for any of the issuers provided %s", issuer);
-
-    String idToken = fetchIdToken(issuer);
 
     if (idToken != null) {
-      log.debug("Idtoken found for issuer {}", issuer);
+      log.debug("Idtoken found for issuer {}", this.issuer);
 
       try {
         SignedJWT signedJwt = parseIdToken(idToken);
@@ -165,18 +150,18 @@ public class AccessControlService {
         return payload.toString();
 
       } catch (ParseException pe) {
-        errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuer, pe);
+        errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuers, pe);
         log.error(errorMsg);
 
       } catch (NullPointerException npe) {
-        errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuer, npe);
+        errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuers, npe);
         log.error(errorMsg);
 
       } catch (Exception e) {
         errorMsg =
             String.format(
                 "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
-                issuer, e);
+                issuers, e);
         log.error(errorMsg);
       }
     }

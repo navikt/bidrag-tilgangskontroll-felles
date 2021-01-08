@@ -4,21 +4,8 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
-1.4     | endring      | Legge til støtte for Azure AD-token
+1.9.9   | endring      | Legge til støtte for Azure AD-token
 1.3     | endring      | Sjekk per person
 1.2     | endring      | Tredje versjon
 1.1     | endring      | Andre versjon
 1.0     | ny           | Første versjon
-
-
-
-NB! Versjon 1.4 krever at OIDC issuer angis ved no.nav.security.jwt.issuer (ikke i issuers array)
-som f.eks:
-
-no.nav.security.jwt:
-  issuer: aad
-  issuer.aad:
-      discoveryurl: https://login.microsoftonline.com/nav.no/v2.0/.well-known/openid-configuration
-      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}, ${ACCEPTED_AUDIENCE}
-
-
