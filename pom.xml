@@ -29,7 +29,7 @@
 
     <!-- misc -->
     <org.projectlombok.version>1.18.16</org.projectlombok.version>
-    <spring-boot.version>2.4.0</spring-boot.version>
+    <spring-boot.version>2.4.1</spring-boot.version>
     <json-smart.version>2.3</json-smart.version>
 
     <!-- lanuguages -->
