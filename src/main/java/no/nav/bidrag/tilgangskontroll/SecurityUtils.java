@@ -59,4 +59,12 @@ public class SecurityUtils {
       throw new IllegalStateException("Kunne ikke hente saksbehandler", e);
     }
   }
+
+  public static String henteIssuer(String idToken) {
+    try {
+      return parseIdToken(idToken).getJWTClaimsSet().getIssuer();
+    }catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om issuer", e);
+    }
+  }
 }

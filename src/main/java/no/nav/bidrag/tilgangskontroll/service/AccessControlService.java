@@ -1,5 +1,6 @@
 package no.nav.bidrag.tilgangskontroll.service;
 
+import static no.nav.bidrag.tilgangskontroll.SecurityUtils.henteIssuer;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
 import static no.nav.bidrag.tilgangskontroll.config.StandardAttributter.ACTION_ID;
 
@@ -47,7 +48,6 @@ public class AccessControlService {
   private final PipConsumer pipConsumer;
   private final TokenValidationContextHolder tokenValidationContextHolder;
   private final String[] issuers;
-  private String issuer = ISSUER_AZURE_AD;
 
   public AccessControlService(
       AbacConsumer abacConsumer,
@@ -97,12 +97,15 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
 
-    if (ISSUER_AZURE_AD.equals(issuers)) {
+    var idToken = getIdTokenPayloadFromContext();
+    var issuer = henteIssuer(idToken);
+
+    if (ISSUER_AZURE_AD.equals(issuer)) {
       request.environment(
-          NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext(issuers));
+          NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext());
     } else {
       request.environment(
-          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getIdTokenPayloadFromContext(issuers));
+          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, idToken);
     }
 
     for (String fnr : roller) {
@@ -121,16 +124,14 @@ public class AccessControlService {
     }
   }
 
-  private String getIdTokenPayloadFromContext(String[] issuers) throws SecurityConstraintException {
-    for (String issuer : issuers) {
-      var potensieltIdToken = fetchIdToken(issuer);
+
+  private String getIdTokenPayloadFromContext() throws SecurityConstraintException {
+      var potensieltIdToken = fetchIdToken();
       if (potensieltIdToken.isPresent()) {
-        log.debug("Idtoken found for issuer {}", this.issuer);
-        this.issuer = issuer;
+        log.debug("Idtoken not found");
         return henteTokenPayload(potensieltIdToken.get());
       }
-    }
-    throw new IllegalStateException("Ingen TokenValidationContext funne!");
+    throw new IllegalStateException("Fant ingen id-token!");
   }
 
   private String henteTokenPayload(String idToken) {
@@ -164,19 +165,19 @@ public class AccessControlService {
     throw new SecurityConstraintException(errorMsg);
   }
 
-  private Optional<String> fetchIdToken(String issuer) {
+  private Optional<String> fetchIdToken() {
     TokenValidationContext tokenValidationContext =
         tokenValidationContextHolder.getTokenValidationContext();
 
     if (tokenValidationContext == null) {
-      log.info("Ingen TokenValidationContext funnet for issuer %s", issuer);
+      log.info("Ingen TokenValidationContext funnet");
       return Optional.empty();
     }
 
-    Optional<JwtToken> jwtToken = tokenValidationContext.getJwtTokenAsOptional(issuer);
+    Optional<JwtToken> jwtToken = tokenValidationContext.getFirstValidToken();
 
     if (jwtToken.isEmpty()) {
-      log.info("Ingen TokenValidationContext funnet for issuer %s", issuer);
+      log.info("Fant ingen id-token i header");
       return Optional.empty();
     }
 
