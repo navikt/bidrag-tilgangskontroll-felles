@@ -34,13 +34,13 @@ public class SecurityUtils {
 
   /**
    * @param idToken to parse
-   * @return saksbehandler from token
+   * @return subject from token
    */
-  public static String hentSaksbehandler(String idToken) {
-    LOGGER.info("Skal finne saksbehandler fra id-token");
+  public static String henteSubject(String idToken) {
+    LOGGER.info("Skal finne subject fra id-token");
 
     try {
-      return hentSaksbehandler(SecurityUtils.parseIdToken(idToken));
+      return henteSubject(SecurityUtils.parseIdToken(idToken));
     } catch (Exception e) {
       LOGGER.error("Klarte ikke parse " + idToken, e);
 
@@ -52,19 +52,20 @@ public class SecurityUtils {
     }
   }
 
-  private static String hentSaksbehandler(SignedJWT signedJWT) {
+  private static String henteSubject(SignedJWT signedJWT) {
     try {
       return signedJWT.getJWTClaimsSet().getSubject();
     } catch (ParseException e) {
-      throw new IllegalStateException("Kunne ikke hente saksbehandler", e);
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets subject", e);
     }
   }
 
   public static String henteIssuer(String idToken) {
     try {
+      var t = parseIdToken(idToken);
       return parseIdToken(idToken).getJWTClaimsSet().getIssuer();
     }catch (ParseException e) {
-      throw new IllegalStateException("Kunne ikke hente informasjon om issuer", e);
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
     }
   }
 }

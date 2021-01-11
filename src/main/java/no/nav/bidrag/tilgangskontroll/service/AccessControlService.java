@@ -97,15 +97,15 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
 
-    var idToken = getIdTokenPayloadFromContext();
+    var idToken = henteIdToken();
     var issuer = henteIssuer(idToken);
 
     if (ISSUER_AZURE_AD.equals(issuer)) {
       request.environment(
-          NavAttributter.SUBJECT_FELLES_AZURE_OID, getIdTokenPayloadFromContext());
+          NavAttributter.SUBJECT_FELLES_AZURE_OID, henteTokenPayload(idToken));
     } else {
       request.environment(
-          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, idToken);
+          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, henteTokenPayload(idToken));
     }
 
     for (String fnr : roller) {
@@ -122,16 +122,6 @@ public class AccessControlService {
     if (Decision.PERMIT != accessResponse.getDecision()) {
       throw new SecurityConstraintException(ACCESS_DENIED);
     }
-  }
-
-
-  private String getIdTokenPayloadFromContext() throws SecurityConstraintException {
-      var potensieltIdToken = fetchIdToken();
-      if (potensieltIdToken.isPresent()) {
-        log.debug("Idtoken not found");
-        return henteTokenPayload(potensieltIdToken.get());
-      }
-    throw new IllegalStateException("Fant ingen id-token!");
   }
 
   private String henteTokenPayload(String idToken) {
@@ -165,22 +155,22 @@ public class AccessControlService {
     throw new SecurityConstraintException(errorMsg);
   }
 
-  private Optional<String> fetchIdToken() {
+  private String henteIdToken() {
     TokenValidationContext tokenValidationContext =
         tokenValidationContextHolder.getTokenValidationContext();
 
     if (tokenValidationContext == null) {
       log.info("Ingen TokenValidationContext funnet");
-      return Optional.empty();
+      throw new IllegalStateException("Fant ingen id-token!");
     }
 
     Optional<JwtToken> jwtToken = tokenValidationContext.getFirstValidToken();
 
     if (jwtToken.isEmpty()) {
       log.info("Fant ingen id-token i header");
-      return Optional.empty();
+      throw new IllegalStateException("Fant ingen id-token!");
     }
 
-    return Optional.of(jwtToken.get().getTokenAsString());
+    return jwtToken.get().getTokenAsString();
   }
 }

@@ -84,8 +84,8 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("Throw SakIkkeFunnetException")
-  void sakMissing() {
+  @DisplayName("Skal kaste SakIkkeFunnetException dersom sak ikke eksisterer")
+  void skalKasteSakIkkeFunnetExceptionDersomSakIkkeEksisterer() {
     // Given, when, then
     assertThrows(
         SakIkkeFunnetException.class,
@@ -94,8 +94,8 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("Throw SecurityConstraintException if PDP responds with DENY decision for sak")
-  void accessDeniedSak() {
+  @DisplayName("Skal kaste SecurityConstraintException dersom ABAC svarer med deny for sak")
+  void skalKasteSecurityConstraintExceptionDersomABACSvarerMedDenyForSak() {
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
     when(abacConsumer.evaluate(any(XacmlRequest.class)))
@@ -112,8 +112,8 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("Throw SecurityConstraintException if PDP responds with DENY decision for person")
-  void accessDeniedPerson() {
+  @DisplayName("Skal kaste SecurityConstraintException dersom ABAC svarer med DENY for person")
+  void skalKasteSecurityConstraintExceptionDersomAbacSvarerMedDenyForPerson() {
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
     when(abacConsumer.evaluate(any(XacmlRequest.class)))
@@ -129,8 +129,8 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("PDP responds with decision PERMIT for sak")
-  void accessGrantedSak() {
+  @DisplayName("Skal ikke kaste exception dersom ABAC svarer med PERMIT for person")
+  void skaIkkeKasteExceptionVedPermitForSak() {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
@@ -147,8 +147,8 @@ class AccessControlServiceTest {
   }
 
   @Test
-  @DisplayName("PDP responds with decision PERMIT for person")
-  void accessGrantedPerson() {
+  @DisplayName("Skal ikke kaste exception dersom ABAC svarer med PERMIT for person")
+  void skalIkkeKasteExceptionDersomAbacSvarerMedPermitForPerson() {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
