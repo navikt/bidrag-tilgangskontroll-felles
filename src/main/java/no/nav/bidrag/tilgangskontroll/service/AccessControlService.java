@@ -129,7 +129,6 @@ public class AccessControlService {
 
   private String henteTokenPayload(String idToken) {
     var errorMsg = String.format("Henting av token payload feilet!");
-
     try {
       SignedJWT signedJwt = parseIdToken(idToken);
 
