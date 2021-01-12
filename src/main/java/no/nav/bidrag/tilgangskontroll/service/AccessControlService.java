@@ -100,10 +100,14 @@ public class AccessControlService {
     var idToken = henteIdToken();
     var issuer = henteIssuer(idToken);
 
+    log.info("issuer: %s", issuer);
+
     if (ISSUER_AZURE_AD.equals(issuer)) {
+      log.info("Legger Azure-token-body inn i %s", NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY);
       request.environment(
-          NavAttributter.SUBJECT_FELLES_AZURE_OID, henteTokenPayload(idToken));
+          NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY, henteTokenPayload(idToken));
     } else {
+      log.info("Legger isso-token-body inn i %s", NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY);
       request.environment(
           NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, henteTokenPayload(idToken));
     }
