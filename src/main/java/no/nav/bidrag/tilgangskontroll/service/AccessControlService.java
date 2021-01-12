@@ -74,7 +74,7 @@ public class AccessControlService {
     if (metadataPip.isPresent()) {
       sjekkTilgangAlleRoller(metadataPip.get().getRoller(), metadataPip.get().getErParagraf19());
     } else {
-      log.error("Sak ikke funnet: " + saksnr);
+      log.error("Sak ikke funnet: {}", saksnr);
       throw new SakIkkeFunnetException();
     }
   }
@@ -100,16 +100,16 @@ public class AccessControlService {
     var idToken = henteIdToken();
     var issuer = henteIssuer(idToken);
 
-    log.info("issuer: %s", issuer);
+    log.info("issuer: {}", issuer);
 
     if (ISSUER_AZURE_AD.equals(issuer)) {
       log.info(
-          "Legger Azure-token-body inn i %s", NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY);
+          "Legger Azure-token-body inn i {}", NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY);
       request.environment(
           NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY, henteTokenPayload(idToken));
     } else {
       log.info(
-          "Legger isso-token-body inn i %s", NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY);
+          "Legger isso-token-body inn i {}", NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY);
       request.environment(
           NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, henteTokenPayload(idToken));
     }
@@ -131,7 +131,7 @@ public class AccessControlService {
   }
 
   private String henteTokenPayload(String idToken) {
-    var errorMsg = String.format("No idtokens found for any of the issuers provided %s", issuers);
+    var errorMsg = String.format("No idtokens found for any of the issuers provided {}", issuers);
 
     try {
       SignedJWT signedJwt = parseIdToken(idToken);
@@ -143,17 +143,17 @@ public class AccessControlService {
       return payload.toString();
 
     } catch (ParseException pe) {
-      errorMsg = String.format("Parsing of idtoken failed for issuer %s: %s", issuers, pe);
+      errorMsg = String.format("Parsing of idtoken failed for issuer {}", issuers, pe);
       log.error(errorMsg);
 
     } catch (NullPointerException npe) {
-      errorMsg = String.format("Idtoken payload was null for issuer issuer %s: %s", issuers, npe);
+      errorMsg = String.format("Idtoken payload was null for issuers {}", issuers, npe);
       log.error(errorMsg);
 
     } catch (Exception e) {
       errorMsg =
           String.format(
-              "Exception occurred when obtaining idtoken payload for issuer issuer %s: %s",
+              "Exception occurred when obtaining idtoken payload for issuers {}",
               issuers, e);
       log.error(errorMsg);
     }
