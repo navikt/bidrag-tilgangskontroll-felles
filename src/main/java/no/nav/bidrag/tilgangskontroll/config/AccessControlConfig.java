@@ -7,6 +7,7 @@ import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.bidrag.tilgangskontroll.consumer.PipConsumer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,7 @@ public class AccessControlConfig {
 
   @Bean
   @Scope("prototype")
+  @Qualifier("abac")
   public RestTemplate restTemplateAbac(
       @Value("${ABAC_USERNAME}") String systemuser_username,
       @Value("${ABAC_PASSWORD}") String systemuser_password
@@ -41,6 +43,7 @@ public class AccessControlConfig {
 
   @Bean
   @Scope("prototype")
+  @Qualifier("pip")
   public RestTemplate restTemplatePip(
       @Value("${PIP_USERNAME}") String systemuser_username,
       @Value("${PIP_PASSWORD}") String systemuser_password
