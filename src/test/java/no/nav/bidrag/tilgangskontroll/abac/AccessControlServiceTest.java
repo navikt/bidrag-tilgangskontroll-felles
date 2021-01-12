@@ -79,8 +79,7 @@ class AccessControlServiceTest {
             abacConsumer,
             abacContext,
             pipConsumer,
-            springTokenValidationContextHolder,
-            new String[] {"aad", "isso"});
+            springTokenValidationContextHolder);
   }
 
   @Test

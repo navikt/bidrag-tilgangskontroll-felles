@@ -42,25 +42,22 @@ public class AccessControlService {
       "ABAC: User does not have access to requested resource.";
   private static final String RESOURCE_BIDRAG_PARAGRAF19 =
       "no.nav.abac.attributter.resource.bidrag.paragraf19";
-  private static final String ISSUER_AZURE_AD = "aad";
+  private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
   private final AbacConsumer abacConsumer;
   private final AbacContext abacContext;
   private final PipConsumer pipConsumer;
   private final TokenValidationContextHolder tokenValidationContextHolder;
-  private final String[] issuers;
 
   public AccessControlService(
       AbacConsumer abacConsumer,
       AbacContext abacContext,
       PipConsumer pipConsumer,
-      TokenValidationContextHolder tokenValidationContextHolder,
-      @Value("${no.nav.security.jwt.issuers}") String[] issuers) {
+      TokenValidationContextHolder tokenValidationContextHolder) {
 
     this.abacConsumer = abacConsumer;
     this.abacContext = abacContext;
     this.pipConsumer = pipConsumer;
     this.tokenValidationContextHolder = tokenValidationContextHolder;
-    this.issuers = issuers;
   }
 
   @Abac(
@@ -102,7 +99,7 @@ public class AccessControlService {
 
     log.info("issuer: {}", issuer);
 
-    if (ISSUER_AZURE_AD.equals(issuer)) {
+    if (issuer.contains(ISSUER_AZURE_AD_IDENTIFIER)) {
       log.info(
           "Legger Azure-token-body inn i {}", NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY);
       request.environment(
@@ -131,7 +128,7 @@ public class AccessControlService {
   }
 
   private String henteTokenPayload(String idToken) {
-    var errorMsg = String.format("No idtokens found for any of the issuers provided {}", issuers);
+    var errorMsg = String.format("Henting av token payload feilet!");
 
     try {
       SignedJWT signedJwt = parseIdToken(idToken);
@@ -143,18 +140,16 @@ public class AccessControlService {
       return payload.toString();
 
     } catch (ParseException pe) {
-      errorMsg = String.format("Parsing of idtoken failed for issuer {}", issuers, pe);
+      errorMsg = String.format("Parsing av id-token failet!", pe);
       log.error(errorMsg);
 
     } catch (NullPointerException npe) {
-      errorMsg = String.format("Idtoken payload was null for issuers {}", issuers, npe);
+      errorMsg = String.format("Id-token payload var null!", npe);
       log.error(errorMsg);
 
     } catch (Exception e) {
       errorMsg =
-          String.format(
-              "Exception occurred when obtaining idtoken payload for issuers {}",
-              issuers, e);
+          String.format("Exception inntraff ved uthenting av idtoken payload", e);
       log.error(errorMsg);
     }
 

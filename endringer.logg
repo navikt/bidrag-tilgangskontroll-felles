@@ -4,6 +4,7 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+1.9.17  | fix          | Azure-token-fiks
 1.9.16  | fix          | Logging-fiks
 1.9.15  | fix          | Fix for Azure-støtte
 1.9.14  | endring      | Støtte for Azure AD OBO token
