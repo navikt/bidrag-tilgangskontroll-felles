@@ -4,7 +4,10 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+<<<<<<< HEAD
 1.9.15  | fix          | Fix for Azure-støtte
+=======
+>>>>>>> main
 1.9.14  | endring      | Støtte for Azure AD OBO token
 1.9.13  | endring      | Legge til støtte for Azure AD-token
 1.3     | endring      | Sjekk per person
