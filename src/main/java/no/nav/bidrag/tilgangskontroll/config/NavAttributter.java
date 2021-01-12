@@ -10,6 +10,6 @@ public final class NavAttributter {
   public static final String RESOURCE_FELLES_DOMENE = "no.nav.abac.attributter.resource.felles.domene";
   public static final String RESOURCE_FELLES_PERSON_FNR = "no.nav.abac.attributter.resource.felles.person.fnr";
   public static final String RESOURCE_FELLES_RESOURCE_TYPE = "no.nav.abac.attributter.resource.felles.resource_type";
-  public static final String SUBJECT_FELLES_AZURE_OID = "no.nav.abac.attributter.subject.felles.azure_oid";
+  public static final String SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY = "no.nav.abac.attributter.environment.felles.azure_jwt_token_body";
 
 }
