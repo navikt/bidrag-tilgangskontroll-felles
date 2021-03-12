@@ -4,6 +4,7 @@
 
 Tilgangskontroll for bidrag mikrotjenester
 
+Se [endringer.logg](endringer.logg) for oversikt over versjoner.
 
 ## Deploy
 
