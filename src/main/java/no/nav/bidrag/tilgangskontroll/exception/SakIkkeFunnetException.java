@@ -2,18 +2,17 @@ package no.nav.bidrag.tilgangskontroll.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.RestClientException;
 
-@ResponseStatus(HttpStatus.NO_CONTENT)
-public class SakIkkeFunnetException extends RuntimeException {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class SakIkkeFunnetException extends PipConsumerException {
 
-  private static final String SAK_IKKE_FUNNET = "Relatert sak ikke funnet!";
-
-  public SakIkkeFunnetException(String message) {
-    super(message);
+  public SakIkkeFunnetException(RestClientException rce) {
+    super(rce);
   }
 
-  public SakIkkeFunnetException() {
-    super(SAK_IKKE_FUNNET);
+  public SakIkkeFunnetException(String feilmelding) {
+    super(feilmelding);
   }
 
 }

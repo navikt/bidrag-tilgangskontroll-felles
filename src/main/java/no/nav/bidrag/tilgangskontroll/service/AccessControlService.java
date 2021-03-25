@@ -25,7 +25,6 @@ import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +71,7 @@ public class AccessControlService {
       sjekkTilgangAlleRoller(metadataPip.get().getRoller(), metadataPip.get().getErParagraf19());
     } else {
       log.error("Sak ikke funnet: {}", saksnr);
-      throw new SakIkkeFunnetException();
+      throw new SakIkkeFunnetException("Sak ble ikke funnet i PIP!");
     }
   }
 
