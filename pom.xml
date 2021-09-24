@@ -24,13 +24,15 @@
   <properties>
 
     <!-- navikt -->
-    <bidrag-commons.version>0.5.6</bidrag-commons.version>
+    <bidrag-commons.version>0.5.10</bidrag-commons.version>
     <token-support.version>1.3.8</token-support.version>
 
     <!-- misc -->
     <org.projectlombok.version>1.18.20</org.projectlombok.version>
-    <spring-boot.version>2.5.3</spring-boot.version>
-    <json-smart.version>2.4.1</json-smart.version>
+    <spring-boot.version>2.5.5</spring-boot.version>
+    <jackson-databind.version>2.13.0-rc2</jackson-databind.version>
+    <json-smart.version>2.4.7</json-smart.version>
+    <jersey-media-jaxb.version>3.0.3</jersey-media-jaxb.version>
 
     <!-- lanuguages -->
     <java.version>15</java.version>
@@ -40,7 +42,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven-compiler.version>3.8.1</maven-compiler.version>
     <maven-compiler.release>${java.version}</maven-compiler.release>
-    <maven-surefire.version>2.22.0</maven-surefire.version>
+    <maven-surefire.version>3.0.0-M5</maven-surefire.version>
 
   </properties>
 
@@ -81,7 +83,7 @@
       <dependency>
         <groupId>org.glassfish.jersey.media</groupId>
         <artifactId>jersey-media-jaxb</artifactId>
-        <version>2.31</version>
+        <version>${jersey-media-jaxb.version}</version>
       </dependency>
     </dependencies>
 
@@ -132,7 +134,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.4</version>
+      <version>${jackson-databind.version}</version>
     </dependency>
 
     <!-- test -->
