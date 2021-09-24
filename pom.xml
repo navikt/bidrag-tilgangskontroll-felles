@@ -35,7 +35,7 @@
     <jersey-media-jaxb.version>3.0.3</jersey-media-jaxb.version>
 
     <!-- lanuguages -->
-    <java.version>16</java.version>
+    <java.version>15</java.version>
 
     <!-- build -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
