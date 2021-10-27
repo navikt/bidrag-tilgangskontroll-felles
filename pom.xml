@@ -28,7 +28,7 @@
     <token-support.version>1.3.9</token-support.version>
 
     <!-- misc -->
-    <org.projectlombok.version>1.18.20</org.projectlombok.version>
+    <org.projectlombok.version>1.18.22</org.projectlombok.version>
     <spring-boot.version>2.5.5</spring-boot.version>
     <jackson-databind.version>2.13.0-rc2</jackson-databind.version>
     <json-smart.version>2.4.7</json-smart.version>
