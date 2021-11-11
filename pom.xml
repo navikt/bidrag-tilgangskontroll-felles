@@ -33,7 +33,7 @@
     <json-smart.version>2.4.7</json-smart.version>
 
     <!-- lanuguages -->
-    <java.version>15</java.version>
+    <java.version>17</java.version>
 
     <!-- build -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

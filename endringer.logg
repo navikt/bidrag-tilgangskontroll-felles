@@ -4,6 +4,7 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+1.9.21  | snyk + jdk17 | Oppdatere versjoner og Java 17
 1.9.20  | snyk         | Oppdatere versjoner
 1.9.19  | snyk         | Snyk-oppdateringer
 1.9.19  | endring      | Feilhåndtering for sak ikke funnet
