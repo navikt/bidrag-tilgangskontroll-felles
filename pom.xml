@@ -24,15 +24,13 @@
   <properties>
 
     <!-- navikt -->
-    <bidrag-commons.version>0.5.10</bidrag-commons.version>
+    <bidrag-commons.version>0.5.16</bidrag-commons.version>
     <token-support.version>1.3.9</token-support.version>
 
     <!-- misc -->
-    <org.projectlombok.version>1.18.20</org.projectlombok.version>
-    <spring-boot.version>2.5.5</spring-boot.version>
-    <jackson-databind.version>2.13.0-rc2</jackson-databind.version>
+    <org.projectlombok.version>1.18.22</org.projectlombok.version>
+    <spring-boot.version>2.5.6</spring-boot.version>
     <json-smart.version>2.4.7</json-smart.version>
-    <jersey-media-jaxb.version>3.0.3</jersey-media-jaxb.version>
 
     <!-- lanuguages -->
     <java.version>15</java.version>
@@ -61,9 +59,7 @@
   </scm>
 
   <dependencyManagement>
-
     <dependencies>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -72,21 +68,13 @@
         <scope>import</scope>
       </dependency>
 
-      <!-- Override version of json-smart -->
+      <!-- Override version of jersey-common -->
       <dependency>
-        <groupId>net.minidev</groupId>
-        <artifactId>json-smart</artifactId>
-        <version>${json-smart.version}</version>
-      </dependency>
-
-      <!-- Override vulnerable versions -->
-      <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-jaxb</artifactId>
-        <version>${jersey-media-jaxb.version}</version>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>2.35</version>
       </dependency>
     </dependencies>
-
   </dependencyManagement>
 
   <dependencies>
@@ -134,7 +122,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson-databind.version}</version>
     </dependency>
 
     <!-- test -->
