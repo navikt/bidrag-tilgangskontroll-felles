@@ -4,6 +4,8 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+1.9.20  | snyk         | Oppdatere versjoner
+1.9.19  | snyk         | Snyk-oppdateringer
 1.9.19  | endring      | Feilhåndtering for sak ikke funnet
 1.9.18  | snyk         | Snyk-oppdateringer
 1.9.17  | fix          | Azure-token-fiks
