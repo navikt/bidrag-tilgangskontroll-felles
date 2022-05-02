@@ -40,7 +40,27 @@ public class SecurityUtils {
     LOGGER.info("Skal finne subject fra id-token");
 
     try {
-      return henteSubject(SecurityUtils.parseIdToken(idToken));
+      return henteSubject(parseIdToken(idToken));
+    } catch (Exception e) {
+      LOGGER.error("Klarte ikke parse " + idToken, e);
+
+      if (e instanceof RuntimeException) {
+        throw ((RuntimeException) e);
+      }
+
+      throw new IllegalArgumentException("Klarte ikke å parse " + idToken, e);
+    }
+  }
+
+  /**
+   * @param idToken to parse
+   * @return pid from token
+   */
+  public static String hentePid(String idToken) {
+    LOGGER.info("Skal finne pid fra id-token");
+
+    try {
+      return hentePid(parseIdToken(idToken));
     } catch (Exception e) {
       LOGGER.error("Klarte ikke parse " + idToken, e);
 
@@ -57,6 +77,14 @@ public class SecurityUtils {
       return signedJWT.getJWTClaimsSet().getSubject();
     } catch (ParseException e) {
       throw new IllegalStateException("Kunne ikke hente informasjon om tokenets subject", e);
+    }
+  }
+
+  private static String hentePid(SignedJWT signedJWT) {
+    try {
+      return signedJWT.getJWTClaimsSet().getStringClaim("pid");
+    } catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets pid", e);
     }
   }
 
