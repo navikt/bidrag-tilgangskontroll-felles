@@ -98,12 +98,13 @@ public class AccessControlService {
     if (isTokenIssuerAzure()) {
       var idToken = henteIdToken();
       if (SecurityUtils.isSystemUser(idToken)){
+        log.info("Token er Azure service-service token, hopper over tilgangskontroll");
         // Assuming bidrag apps is using zero trust pre-authorized apps
         // Change this when apps need different access control
         return;
       }
       log.info(
-        "Legger til Azure token {} InternBruker", NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE);
+        "Legger til attributter for Azure token med {} InternBruker og {} fra NavIdent claim på token", NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, NavAttributter.SUBJECT_FELLES_SUBJECT_ID);
       request.environment(NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, "InternBruker");
       request.environment(NavAttributter.SUBJECT_FELLES_SUBJECT_ID, hentSubjectIdFraAzureToken(idToken));
     } else {
