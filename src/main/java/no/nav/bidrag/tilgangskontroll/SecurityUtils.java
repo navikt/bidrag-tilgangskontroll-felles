@@ -96,4 +96,25 @@ public class SecurityUtils {
       throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
     }
   }
+
+  public static boolean isSystemUser(String idToken) {
+    try {
+      var claims = parseIdToken(idToken).getJWTClaimsSet();
+      var systemRessurs = "Systemressurs".equals(claims.getStringClaim("identType"));
+      var roles = claims.getStringListClaim("roles");
+      var azureApp = roles != null && roles.contains("access_as_application");
+      return systemRessurs || azureApp;
+    }catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
+    }
+  }
+
+  public static String hentSubjectIdFraAzureToken(String idToken) {
+    try {
+      var claims = parseIdToken(idToken).getJWTClaimsSet();
+      return claims.getStringClaim("NAVident");
+    }catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
+    }
+  }
 }
