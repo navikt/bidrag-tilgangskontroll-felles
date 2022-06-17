@@ -1,5 +1,6 @@
 package no.nav.bidrag.tilgangskontroll.service;
 
+import static no.nav.bidrag.tilgangskontroll.SecurityUtils.hentSubjectIdFraAzureToken;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.henteIssuer;
 import static no.nav.bidrag.tilgangskontroll.SecurityUtils.parseIdToken;
 import static no.nav.bidrag.tilgangskontroll.config.StandardAttributter.ACTION_ID;
@@ -10,6 +11,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.bidrag.tilgangskontroll.SecurityUtils;
 import no.nav.bidrag.tilgangskontroll.annotation.attribute.Abac;
 import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
 import no.nav.bidrag.tilgangskontroll.config.NavAttributter;
@@ -41,7 +43,6 @@ public class AccessControlService {
       "ABAC: User does not have access to requested resource.";
   private static final String RESOURCE_BIDRAG_PARAGRAF19 =
       "no.nav.abac.attributter.resource.bidrag.paragraf19";
-  private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
   private final AbacConsumer abacConsumer;
   private final AbacContext abacContext;
   private final PipConsumer pipConsumer;
@@ -93,17 +94,20 @@ public class AccessControlService {
     request.resource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, RESOURCE_TYPE_JOURNALPOST);
     request.resource(RESOURCE_BIDRAG_PARAGRAF19, erParagraf19Sak);
 
-    var idToken = henteIdToken();
-    var issuer = henteIssuer(idToken);
-
-    log.info("issuer: {}", issuer);
-
-    if (issuer.contains(ISSUER_AZURE_AD_IDENTIFIER)) {
+    if (isTokenIssuerAzure()) {
+      var idToken = henteIdToken();
+      if (SecurityUtils.isSystemUser(idToken)){
+        log.info("Token er Azure service-service token, hopper over tilgangskontroll");
+        // Assuming bidrag apps is using zero trust pre-authorized apps
+        // Change this when apps need different access control
+        return;
+      }
       log.info(
-          "Legger Azure-token-body inn i {}", NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY);
-      request.environment(
-          NavAttributter.SUBJECT_FELLES_AZURE_JWT_TOKEN_BODY, henteTokenPayload(idToken));
+        "Legger til attributter for Azure token med {} InternBruker og {} fra NavIdent claim på token", NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, NavAttributter.SUBJECT_FELLES_SUBJECT_ID);
+      request.accessSubject(NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, "InternBruker");
+      request.accessSubject(NavAttributter.SUBJECT_FELLES_SUBJECT_ID, hentSubjectIdFraAzureToken(idToken));
     } else {
+      var idToken = henteIdToken();
       log.info(
           "Legger isso-token-body inn i {}", NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY);
       request.environment(
@@ -114,6 +118,13 @@ public class AccessControlService {
       request.resource(NavAttributter.RESOURCE_FELLES_PERSON_FNR, fnr);
       evaluate(request, fnr);
     }
+  }
+
+  private boolean isTokenIssuerAzure(){
+    var idToken = henteIdToken();
+    var issuer = henteIssuer(idToken);
+    log.info("issuer: {}", issuer);
+    return SecurityUtils.isTokenIssuedByAzure(issuer);
   }
 
   private void evaluate(XacmlRequest request, String id) throws SecurityConstraintException {

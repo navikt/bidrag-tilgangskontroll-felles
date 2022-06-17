@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 public class SecurityUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUtils.class);
+  private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
 
   /**
    * Returns a Base64 encoded string comprised of username:password
@@ -74,10 +75,26 @@ public class SecurityUtils {
 
   private static String henteSubject(SignedJWT signedJWT) {
     try {
+      if (isTokenIssuedByAzure(signedJWT)){
+        return hentSubjectIdFraAzureToken(signedJWT);
+      }
       return signedJWT.getJWTClaimsSet().getSubject();
     } catch (ParseException e) {
       throw new IllegalStateException("Kunne ikke hente informasjon om tokenets subject", e);
     }
+  }
+
+  public static boolean isTokenIssuedByAzure(SignedJWT signedJWT){
+    try {
+      var issuer = signedJWT.getJWTClaimsSet().getIssuer();
+      return isTokenIssuedByAzure(issuer);
+    } catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets subject", e);
+    }
+  }
+
+  public static boolean isTokenIssuedByAzure(String issuer){
+    return issuer != null && issuer.contains(ISSUER_AZURE_AD_IDENTIFIER);
   }
 
   private static String hentePid(SignedJWT signedJWT) {
@@ -93,6 +110,45 @@ public class SecurityUtils {
       var t = parseIdToken(idToken);
       return parseIdToken(idToken).getJWTClaimsSet().getIssuer();
     }catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
+    }
+  }
+
+  public static boolean isSystemUser(String idToken) {
+    try {
+      var claims = parseIdToken(idToken).getJWTClaimsSet();
+      var systemRessurs = "Systemressurs".equals(claims.getStringClaim("identType"));
+      var roles = claims.getStringListClaim("roles");
+      var azureApp = roles != null && roles.contains("access_as_application");
+      return systemRessurs || azureApp;
+    }catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
+    }
+  }
+
+  public static String hentSubjectIdFraAzureToken(SignedJWT signedJWT) {
+    try {
+      var claims = signedJWT.getJWTClaimsSet();
+      var navIdent = claims.getStringClaim("NAVident");
+      var application = claims.getStringClaim("azp_name");
+      return navIdent != null ? navIdent : getApplicationNameFromAzp(application);
+    } catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
+    }
+  }
+
+  private static String getApplicationNameFromAzp(String azpName){
+    if (azpName == null){
+      return null;
+    }
+    var azpNameSplit = azpName.split(":");
+    return azpNameSplit[azpNameSplit.length - 1];
+  }
+
+  public static String hentSubjectIdFraAzureToken(String idToken) {
+    try {
+      return hentSubjectIdFraAzureToken(parseIdToken(idToken));
+    } catch (ParseException e) {
       throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
     }
   }

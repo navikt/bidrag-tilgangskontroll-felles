@@ -4,6 +4,7 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+1.10.3  | endring      | Støtte for Azure token
 1.10.0  | endring      | Legge til støtte for å hente ut informsjon fra et tokens PID
 1.9.23  | snyk         | Oppdatere versjoner på avhengigheter
 1.9.22  | snyk         | Oppdatere versjoner
