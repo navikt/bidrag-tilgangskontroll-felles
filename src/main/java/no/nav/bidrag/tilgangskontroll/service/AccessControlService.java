@@ -127,9 +127,6 @@ public class AccessControlService {
     log.info("issuer: {}", issuer);
     return issuer.contains(ISSUER_AZURE_AD_IDENTIFIER);
   }
-  private void isSystemUser(){
-
-  }
 
   private void evaluate(XacmlRequest request, String id) throws SecurityConstraintException {
     XacmlResponse accessResponse;
