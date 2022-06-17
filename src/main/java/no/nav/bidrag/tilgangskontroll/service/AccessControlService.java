@@ -105,8 +105,8 @@ public class AccessControlService {
       }
       log.info(
         "Legger til attributter for Azure token med {} InternBruker og {} fra NavIdent claim på token", NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, NavAttributter.SUBJECT_FELLES_SUBJECT_ID);
-      request.environment(NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, "InternBruker");
-      request.environment(NavAttributter.SUBJECT_FELLES_SUBJECT_ID, hentSubjectIdFraAzureToken(idToken));
+      request.accessSubject(NavAttributter.SUBJECT_FELLES_SUBJECT_TYPE, "InternBruker");
+      request.accessSubject(NavAttributter.SUBJECT_FELLES_SUBJECT_ID, hentSubjectIdFraAzureToken(idToken));
     } else {
       var idToken = henteIdToken();
       log.info(

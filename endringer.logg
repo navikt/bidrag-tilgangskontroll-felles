@@ -4,6 +4,7 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+1.10.2  | endring      | Feilfiks Azure token støtte
 1.10.1  | endring      | Legge til støtte for Azure token
 1.10.0  | endring      | Legge til støtte for å hente ut informsjon fra et tokens PID
 1.9.23  | snyk         | Oppdatere versjoner på avhengigheter
