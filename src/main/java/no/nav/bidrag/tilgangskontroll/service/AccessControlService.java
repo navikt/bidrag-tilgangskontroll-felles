@@ -43,7 +43,6 @@ public class AccessControlService {
       "ABAC: User does not have access to requested resource.";
   private static final String RESOURCE_BIDRAG_PARAGRAF19 =
       "no.nav.abac.attributter.resource.bidrag.paragraf19";
-  private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
   private final AbacConsumer abacConsumer;
   private final AbacContext abacContext;
   private final PipConsumer pipConsumer;
@@ -124,9 +123,8 @@ public class AccessControlService {
   private boolean isTokenIssuerAzure(){
     var idToken = henteIdToken();
     var issuer = henteIssuer(idToken);
-
     log.info("issuer: {}", issuer);
-    return issuer.contains(ISSUER_AZURE_AD_IDENTIFIER);
+    return SecurityUtils.isTokenIssuedByAzure(issuer);
   }
 
   private void evaluate(XacmlRequest request, String id) throws SecurityConstraintException {
