@@ -110,13 +110,15 @@ public class AccessControlService {
       var idToken = henteIdToken();
       log.info(
           "Legger isso-token-body inn i {}", NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY);
+
+      var tokenPayload = henteTokenPayload(idToken);
       request.environment(
-          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, henteTokenPayload(idToken));
+          NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, tokenPayload);
     }
 
     for (String fnr : roller) {
       request.resource(NavAttributter.RESOURCE_FELLES_PERSON_FNR, fnr);
-      evaluate(request, fnr);
+      evaluate(request);
     }
   }
 
@@ -127,7 +129,7 @@ public class AccessControlService {
     return SecurityUtils.isTokenIssuedByAzure(issuer);
   }
 
-  private void evaluate(XacmlRequest request, String id) throws SecurityConstraintException {
+  private void evaluate(XacmlRequest request) throws SecurityConstraintException {
     XacmlResponse accessResponse;
 
     accessResponse = abacConsumer.evaluate(request);

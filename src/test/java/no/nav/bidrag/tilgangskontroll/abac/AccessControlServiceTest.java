@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import no.nav.bidrag.tilgangskontroll.Testapp;
 import no.nav.bidrag.tilgangskontroll.annotation.context.AbacContext;
 import no.nav.bidrag.tilgangskontroll.config.NavAttributter;
 import no.nav.bidrag.tilgangskontroll.consumer.AbacConsumer;
@@ -27,11 +28,12 @@ import no.nav.bidrag.tilgangskontroll.response.AttributeAssignment;
 import no.nav.bidrag.tilgangskontroll.response.Decision;
 import no.nav.bidrag.tilgangskontroll.response.XacmlResponse;
 import no.nav.bidrag.tilgangskontroll.service.AccessControlService;
+import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.token.support.core.context.TokenValidationContext;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder;
-import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
-import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,57 +41,65 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.springframework.context.annotation.Import;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @DisplayName("AccessControlServiceTest")
-@Import(TokenGeneratorConfiguration.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Testapp.class)
+@EnableMockOAuth2Server
 class AccessControlServiceTest {
 
   private final String SAKSNR = "0000001";
   private final String FNR_TEST_PERSON = "01011112345";
-  private String testIdToken;
-  @Captor private ArgumentCaptor<XacmlRequest> pdpRequestCaptor;
 
-  @Mock private AbacContext abacContext;
+  @Autowired
+  private MockOAuth2Server mockOAuth2Server;
 
-  @Mock private AbacConsumer abacConsumer;
+  @Captor
+  private ArgumentCaptor<XacmlRequest> pdpRequestCaptor;
 
-  @Mock private PipConsumer pipConsumer;
+  @Mock
+  private AbacContext abacContext;
 
-  @Mock private SpringTokenValidationContextHolder springTokenValidationContextHolder;
+  @Mock
+  private AbacConsumer abacConsumer;
+
+  @Mock
+  private PipConsumer pipConsumer;
+
+  @Mock
+  private SpringTokenValidationContextHolder springTokenValidationContextHolder;
+
+  @MockBean
+  private TokenValidationContextHolder tokenValidationContextHolder;
 
   private AccessControlService accessControlService;
 
+  private String token;
+
   @BeforeEach
   void generateTestToken() {
-    if (testIdToken == null) {
-      TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
-      this.testIdToken = testTokenGeneratorResource.issueToken("localhost-idtoken");
+    if (token == null) {
+      this.token = mockOAuth2Server.issueToken().serialize();
     }
   }
 
   @BeforeEach
   void initAccessControlService() {
-    accessControlService =
-        new AccessControlService(
-            abacConsumer,
-            abacContext,
-            pipConsumer,
-            springTokenValidationContextHolder);
+    accessControlService = new AccessControlService(abacConsumer, abacContext, pipConsumer, springTokenValidationContextHolder);
+    this.token = mockOAuth2Server.issueToken().serialize();
   }
 
   @Test
   @DisplayName("Skal kaste SakIkkeFunnetException dersom sak ikke eksisterer")
   void skalKasteSakIkkeFunnetExceptionDersomSakIkkeEksisterer() {
     // Given, when, then
-    assertThrows(
-        SakIkkeFunnetException.class,
-        () -> accessControlService.sjekkTilgangSak(SAKSNR),
-        "SakIkkeFunnetException is expected");
+    assertThrows(SakIkkeFunnetException.class, () -> accessControlService.sjekkTilgangSak(SAKSNR), "SakIkkeFunnetException is expected");
   }
 
   @Test
@@ -97,17 +107,12 @@ class AccessControlServiceTest {
   void skalKasteSecurityConstraintExceptionDersomABACSvarerMedDenyForSak() {
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
-    when(abacConsumer.evaluate(any(XacmlRequest.class)))
-        .thenReturn(createXacmlResponse(Decision.DENY));
-    when(springTokenValidationContextHolder.getTokenValidationContext())
-        .thenReturn(createTokenValidator());
+    when(abacConsumer.evaluate(any(XacmlRequest.class))).thenReturn(createXacmlResponse(Decision.DENY));
+    when(springTokenValidationContextHolder.getTokenValidationContext()).thenReturn(createTokenValidator());
     when(pipConsumer.getMetaDataPip(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
 
     // When, then
-    assertThrows(
-        SecurityConstraintException.class,
-        () -> accessControlService.sjekkTilgangSak(SAKSNR),
-        "SecurityConstraintException is expected");
+    assertThrows(SecurityConstraintException.class, () -> accessControlService.sjekkTilgangSak(SAKSNR), "SecurityConstraintException is expected");
   }
 
   @Test
@@ -115,15 +120,11 @@ class AccessControlServiceTest {
   void skalKasteSecurityConstraintExceptionDersomAbacSvarerMedDenyForPerson() {
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
-    when(abacConsumer.evaluate(any(XacmlRequest.class)))
-        .thenReturn(createXacmlResponse(Decision.DENY));
-    when(springTokenValidationContextHolder.getTokenValidationContext())
-        .thenReturn(createTokenValidator());
+    when(abacConsumer.evaluate(any(XacmlRequest.class))).thenReturn(createXacmlResponse(Decision.DENY));
+    when(springTokenValidationContextHolder.getTokenValidationContext()).thenReturn(createTokenValidator());
 
     // When, then
-    assertThrows(
-        SecurityConstraintException.class,
-        () -> accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON),
+    assertThrows(SecurityConstraintException.class, () -> accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON),
         "SecurityConstraintException is expected");
   }
 
@@ -133,16 +134,12 @@ class AccessControlServiceTest {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
-    when(abacConsumer.evaluate(any(XacmlRequest.class)))
-        .thenReturn(createXacmlResponse(Decision.PERMIT));
-    when(springTokenValidationContextHolder.getTokenValidationContext())
-        .thenReturn(createTokenValidator());
+    when(abacConsumer.evaluate(any(XacmlRequest.class))).thenReturn(createXacmlResponse(Decision.PERMIT));
+    when(springTokenValidationContextHolder.getTokenValidationContext()).thenReturn(createTokenValidator());
     when(pipConsumer.getMetaDataPip(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
 
     // When, then
-    assertDoesNotThrow(
-        () -> accessControlService.sjekkTilgangSak(SAKSNR),
-        "Expects no exceptions for PERMIT decision");
+    assertDoesNotThrow(() -> accessControlService.sjekkTilgangSak(SAKSNR), "Expects no exceptions for PERMIT decision");
   }
 
   @Test
@@ -151,15 +148,11 @@ class AccessControlServiceTest {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
-    when(abacConsumer.evaluate(any(XacmlRequest.class)))
-        .thenReturn(createXacmlResponse(Decision.PERMIT));
-    when(springTokenValidationContextHolder.getTokenValidationContext())
-        .thenReturn(createTokenValidator());
+    when(abacConsumer.evaluate(any(XacmlRequest.class))).thenReturn(createXacmlResponse(Decision.PERMIT));
+    when(springTokenValidationContextHolder.getTokenValidationContext()).thenReturn(createTokenValidator());
 
     // When, then
-    assertDoesNotThrow(
-        () -> accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON),
-        "Expects no exceptions for PERMIT decision");
+    assertDoesNotThrow(() -> accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON), "Expects no exceptions for PERMIT decision");
   }
 
   @Test
@@ -168,10 +161,8 @@ class AccessControlServiceTest {
 
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
-    when(abacConsumer.evaluate(any(XacmlRequest.class)))
-        .thenReturn(createXacmlResponse(Decision.PERMIT));
-    when(springTokenValidationContextHolder.getTokenValidationContext())
-        .thenReturn(createTokenValidator());
+    when(abacConsumer.evaluate(any(XacmlRequest.class))).thenReturn(createXacmlResponse(Decision.PERMIT));
+    when(springTokenValidationContextHolder.getTokenValidationContext()).thenReturn(createTokenValidator());
     when(pipConsumer.getMetaDataPip(SAKSNR)).thenReturn(mockedBidragSakPipIntern());
 
     // When
@@ -188,12 +179,11 @@ class AccessControlServiceTest {
   @Test
   @DisplayName("Access person, PDP request formatted correctly ")
   void assertCorrectFormatPdpRequestPerson() throws ParseException {
+
     // Given
     when(abacContext.getRequest()).thenReturn(createXacmlRequest());
-    when(abacConsumer.evaluate(any(XacmlRequest.class)))
-        .thenReturn(createXacmlResponse(Decision.PERMIT));
-    when(springTokenValidationContextHolder.getTokenValidationContext())
-        .thenReturn(createTokenValidator());
+    when(abacConsumer.evaluate(any(XacmlRequest.class))).thenReturn(createXacmlResponse(Decision.PERMIT));
+    when(springTokenValidationContextHolder.getTokenValidationContext()).thenReturn(createTokenValidator());
 
     // When
     accessControlService.sjekkTilgangPerson(FNR_TEST_PERSON);
@@ -207,31 +197,22 @@ class AccessControlServiceTest {
   }
 
   private void assertPdpRequestFormat(XacmlRequest pdpRequest) throws ParseException {
-    assertThat(pdpRequest.getEnvironments())
-        .as("The PDP-request is expected to hold two environment attributes.")
-        .hasSize(2);
+    assertThat(pdpRequest.getEnvironments()).as("The PDP-request is expected to hold two environment attributes.").hasSize(2);
 
-    assertThat(pdpRequest.getResources())
-        .as("The PDP-request is expected to hold four resource attributes")
-        .hasSize(4);
+    assertThat(pdpRequest.getResources()).as("The PDP-request is expected to hold four resource attributes").hasSize(4);
 
-    assertThat(pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_PEP_ID).toString())
-        .isEqualToIgnoringCase(AccessControlService.PEP_ID_BIDRAG);
+    assertThat(pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_PEP_ID).toString()).isEqualToIgnoringCase(
+        AccessControlService.PEP_ID_BIDRAG);
 
-    Base64URL idTokenPayload = parseIdToken(testIdToken).getParsedParts()[1];
+    Base64URL idTokenPayload = parseIdToken(token).getParsedParts()[1];
+    assertThat(pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY).toString()).isEqualToIgnoringCase(idTokenPayload.toString());
 
-    assertThat(
-            pdpRequest.getEnvironment(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY).toString())
-        .isEqualToIgnoringCase(idTokenPayload.toString());
+    assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_DOMENE).toString()).isEqualToIgnoringCase(AccessControlService.PEP_ID_BIDRAG);
 
-    assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_DOMENE).toString())
-        .isEqualToIgnoringCase(AccessControlService.PEP_ID_BIDRAG);
+    assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_PERSON_FNR).toString()).isEqualToIgnoringCase(FNR_TEST_PERSON);
 
-    assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_PERSON_FNR).toString())
-        .isEqualToIgnoringCase(FNR_TEST_PERSON);
-
-    assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE).toString())
-        .isEqualToIgnoringCase(AccessControlService.RESOURCE_TYPE_JOURNALPOST);
+    assertThat(pdpRequest.getResource(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE).toString()).isEqualToIgnoringCase(
+        AccessControlService.RESOURCE_TYPE_JOURNALPOST);
   }
 
   private XacmlRequest createXacmlRequest() {
@@ -249,40 +230,30 @@ class AccessControlServiceTest {
     List<AttributeAssignment> attributeAssignments = new ArrayList<>();
 
     attributeAssignments.add(
-        AttributeAssignment.builder()
-            .attributeId("no.nav.abac.attributter.adviceorobligation.cause")
-            .value("cause-0001-manglerrolle")
-            .category("urn:oasis:names:tc:xacml:3.0:attribute-category:environment")
-            .dataType("http://www.w3.org/2001/XMLSchema#string)")
-            .build());
+        AttributeAssignment.builder().attributeId("no.nav.abac.attributter.adviceorobligation.cause").value("cause-0001-manglerrolle")
+            .category("urn:oasis:names:tc:xacml:3.0:attribute-category:environment").dataType("http://www.w3.org/2001/XMLSchema#string)").build());
 
     attributeAssignments.add(
-        AttributeAssignment.builder()
-            .attributeId("no.nav.abac.attributter.adviceorobligation.deny_policy")
-            .value("internbruker_basis")
-            .category("urn:oasis:names:tc:xacml:3.0:attribute-category:environment")
-            .dataType("http://www.w3.org/2001/XMLSchema#string)")
-            .build());
+        AttributeAssignment.builder().attributeId("no.nav.abac.attributter.adviceorobligation.deny_policy").value("internbruker_basis")
+            .category("urn:oasis:names:tc:xacml:3.0:attribute-category:environment").dataType("http://www.w3.org/2001/XMLSchema#string)").build());
 
-    attributeAssignments.add(
-        AttributeAssignment.builder()
-            .attributeId("no.nav.abac.attributter.adviceorobligation.deny_rule")
-            .value("basisrolle_NOK")
-            .category("urn:oasis:names:tc:xacml:3.0:attribute-category:environment")
-            .dataType("http://www.w3.org/2001/XMLSchema#string)")
-            .build());
+    attributeAssignments.add(AttributeAssignment.builder().attributeId("no.nav.abac.attributter.adviceorobligation.deny_rule").value("basisrolle_NOK")
+        .category("urn:oasis:names:tc:xacml:3.0:attribute-category:environment").dataType("http://www.w3.org/2001/XMLSchema#string)").build());
 
-    advices.add(
-        Advice.builder()
-            .id("no.nav.abac.advices.reason.deny_reason")
-            .attributeAssignments(attributeAssignments)
-            .build());
+    advices.add(Advice.builder().id("no.nav.abac.advices.reason.deny_reason").attributeAssignments(attributeAssignments).build());
 
     return advices;
   }
 
+  private TokenValidationContext createTokenValidator(String token2) {
+    var jwtToken = new JwtToken(token2);
+    var tokenMap = new HashMap<String, JwtToken>();
+    tokenMap.put("aad", jwtToken);
+
+    return new TokenValidationContext(tokenMap);
+  }
   private TokenValidationContext createTokenValidator() {
-    var jwtToken = new JwtToken(testIdToken);
+    var jwtToken = new JwtToken(token);
     var tokenMap = new HashMap<String, JwtToken>();
     tokenMap.put("aad", jwtToken);
 
@@ -290,10 +261,7 @@ class AccessControlServiceTest {
   }
 
   private PipIntern mockedBidragSakPipIntern() {
-    return PipIntern.builder()
-        .erParagraf19(false)
-        .roller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON)))
-        .saksnummer("123456789")
+    return PipIntern.builder().erParagraf19(false).roller(new ArrayList<>(Collections.singletonList(FNR_TEST_PERSON))).saksnummer("123456789")
         .build();
   }
 }
