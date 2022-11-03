@@ -24,13 +24,13 @@
   <properties>
 
     <!-- navikt -->
-    <bidrag-commons.version>0.5.16</bidrag-commons.version>
-    <token-support.version>1.3.19</token-support.version>
+    <bidrag-commons.version>0.7.10</bidrag-commons.version>
+    <token-support.version>2.1.7</token-support.version>
 
     <!-- misc -->
     <org.projectlombok.version>1.18.24</org.projectlombok.version>
-    <spring-boot.version>2.7.2</spring-boot.version>
-    <json-smart.version>2.4.7</json-smart.version>
+    <spring-boot.version>2.7.5</spring-boot.version>
+    <json-smart.version>2.4.8</json-smart.version>
 
     <!-- lanuguages -->
     <java.version>17</java.version>
@@ -38,7 +38,7 @@
     <!-- build -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven-compiler.version>3.8.1</maven-compiler.version>
+    <maven-compiler.version>3.10.1</maven-compiler.version>
     <maven-compiler.release>${java.version}</maven-compiler.release>
     <maven-surefire.version>3.0.0-M5</maven-surefire.version>
 
@@ -127,8 +127,9 @@
     <!-- test -->
     <dependency>
       <groupId>no.nav.security</groupId>
-      <artifactId>token-validation-test-support</artifactId>
+      <artifactId>token-validation-spring-test</artifactId>
       <version>${token-support.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
