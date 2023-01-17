@@ -4,6 +4,7 @@
 
 versjon | endringstype | beskrivelse
 --------|--------------|------------
+1.10.5  | endring      | Oppdatert avhengighet til bidrag-commons
 1.10.4  | snyk         | Oppdatere avhengigheter, token-support bla
 1.10.3  | endring      | Støtte for Azure token
 1.10.0  | endring      | Legge til støtte for å hente ut informsjon fra et tokens PID
