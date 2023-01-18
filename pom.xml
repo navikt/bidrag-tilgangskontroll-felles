@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>no.nav.bidrag</groupId>
-  <artifactId>bidrag-tilgangskontroll</artifactId>
-  <version>1.10.5-SNAPSHOT</version>
+  <artifactId>bidrag-tilgangskontroll-felles</artifactId>
+  <version>1.11-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -54,14 +54,14 @@
   <distributionManagement>
     <repository>
       <id>github</id>
-      <url>https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll</url>
+      <url>https://maven.pkg.github.com/navikt/bidrag-tilgangskontroll-felles</url>
     </repository>
   </distributionManagement>
 
   <scm>
-    <developerConnection>scm:git:git@github.com:navikt/bidrag-tilgangskontroll.git</developerConnection>
-    <connection>scm:git:git@github.com:navikt/bidrag-tilgangskontroll.git</connection>
-    <url>https://github.com/navikt/bidrag-tilgangskontroll.git</url>
+    <developerConnection>scm:git:git@github.com:navikt/bidrag-tilgangskontroll-felles.git</developerConnection>
+    <connection>scm:git:git@github.com:navikt/bidrag-tilgangskontroll-felles.git</connection>
+    <url>https://github.com/navikt/bidrag-tilgangskontroll-felles.git</url>
     <tag>HEAD</tag>
   </scm>
 
