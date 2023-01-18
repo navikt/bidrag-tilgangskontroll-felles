@@ -21,10 +21,17 @@
     </developer>
   </developers>
 
+  <repositories>
+    <repository>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
+    </repository>
+  </repositories>
+
   <properties>
 
     <!-- navikt -->
-    <bidrag-commons.version>0.7.10</bidrag-commons.version>
+    <bidrag-commons.version>0.7.34</bidrag-commons.version>
     <token-support.version>2.1.7</token-support.version>
 
     <!-- misc -->
